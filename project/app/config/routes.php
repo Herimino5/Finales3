@@ -3,6 +3,7 @@
 use app\controllers\ApiExampleController;
 use app\controllers\DashboardController;
 use app\middlewares\SecurityHeadersMiddleware;
+use app\controllers\BesoinController;
 use flight\Engine;
 use flight\net\Router;
 
