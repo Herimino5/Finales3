@@ -43,7 +43,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link <?= (isset($activePage) && $activePage === 'dons') ? 'active' : '' ?>" href="<?= BASE_URL ?>dons">
+                                <a class="nav-link <?= (isset($activePage) && $activePage === 'dons') ? 'active' : '' ?>" href="<?= BASE_URL ?>donsform">
                                     <i class="bi bi-gift me-2"></i> Gérer les Dons
                                 </a>
                             </li>
