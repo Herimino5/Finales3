@@ -27,6 +27,9 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
 	$router->get('/distributions', [ DistributionController::class, 'index' ]);
 	$router->post('/distribuerAutomatique', [ DistributionController::class, 'distribuerAutomatique' ]);
+	$router->get('/donsform', [ DonsController::class, 'index' ]);
+	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
+	$router->post('/donsProductInsert', [ DonsController::class, 'insertProduct' ]);
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
 	// });
