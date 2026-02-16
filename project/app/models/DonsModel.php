@@ -44,4 +44,42 @@ class DonsModel {
         $stmt->execute();
         return $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
     }
+
+    /**
+     * Récupère tous les produits
+     */
+    public function getAllProducts() {
+        $sql = "SELECT p.id, p.nom, p.prix_unitaire, c.nom AS categorie_nom 
+                FROM s3fin_product p
+                LEFT JOIN s3fin_categorie c ON p.categorie_id = c.id
+                ORDER BY p.nom";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère toutes les catégories
+     */
+    public function getAllCategories() {
+        $sql = "SELECT id, nom FROM s3fin_categorie ORDER BY nom";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Insère un nouveau produit
+     */
+    public function insertProduct($nom, $prix_unitaire, $categorie_id) {
+        $sql = "INSERT INTO s3fin_product (nom, prix_unitaire, categorie_id) 
+                VALUES (:nom, :prix_unitaire, :categorie_id)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'nom' => $nom,
+            'prix_unitaire' => $prix_unitaire,
+            'categorie_id' => $categorie_id
+        ]);
+        return $this->db->lastInsertId();
+    }
 }
