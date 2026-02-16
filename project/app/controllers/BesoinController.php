@@ -86,20 +86,24 @@ class BesoinController
     }
     
     public function insertProduit() {
+        header('Content-Type: application/json');
+        
         try {
-            // Récupérer les données JSON
-            $requestData = Flight::request()->data->getData();
+            // Récupérer les données POST (FormData)
+            $nom = Flight::request()->data->nom_produit ?? '';
+            $prix_unitaire = Flight::request()->data->prix_unitaire ?? 0;
+            $categorie_id = Flight::request()->data->categorie ?? null;
             
             // Récupérer les données du nouveau produit
             $data = [
-                'nom' => $requestData['nom_produit'] ?? '',
-                'prix_unitaire' => $requestData['prix_unitaire'] ?? 0,
-                'categorie_id' => $requestData['categorie'] ?? null
+                'nom' => $nom,
+                'prix_unitaire' => $prix_unitaire,
+                'categorie_id' => $categorie_id
             ];
             
             // Validation basique
             if (empty($data['nom']) || empty($data['categorie_id'])) {
-                Flight::json(['success' => false, 'error' => 'Données manquantes']);
+                echo json_encode(['success' => false, 'error' => 'Données manquantes']);
                 return;
             }
             
@@ -108,18 +112,19 @@ class BesoinController
             $produitId = $produitModel->insertProduit($data);
             
             if ($produitId) {
-                Flight::json([
+                echo json_encode([
                     'success' => true, 
                     'id' => $produitId,
                     'nom' => $data['nom'],
                     'prix_unitaire' => $data['prix_unitaire']
                 ]);
             } else {
-                Flight::json(['success' => false, 'error' => 'Erreur lors de l\'insertion']);
+                echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'insertion']);
             }
         } catch (\Exception $e) {
-            Flight::json(['success' => false, 'error' => $e->getMessage()]);
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
+        exit;
     }
 
 }

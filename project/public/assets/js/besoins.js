@@ -31,32 +31,31 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(form);
             const baseUrl = document.body.getAttribute('data-base-url') || '/';
             
-            // Convertir FormData en objet JSON
-            const data = {
-                nom_produit: formData.get('nom_produit'),
-                prix_unitaire: formData.get('prix_unitaire'),
-                categorie: formData.get('categorie')
-            };
-            
             fetch(baseUrl + 'produitsInsert', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                body: formData
             })
             .then(response => {
                 console.log('Response status:', response.status);
-                return response.json();
+                console.log('Response headers:', response.headers.get('content-type'));
+                return response.text();
             })
-            .then(data => {
-                console.log('Response data:', data);
-                if (data.success) {
-                    alert('Produit ajouté avec succès!');
-                    // Recharger la page pour mettre à jour la liste des produits
-                    window.location.reload();
-                } else {
-                    alert('Erreur lors de l\'ajout du produit: ' + (data.error || 'Erreur inconnue'));
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        alert('Produit ajouté avec succès!');
+                        // Recharger la page pour mettre à jour la liste des produits
+                        window.location.reload();
+                    } else {
+                        alert('Erreur lors de l\'ajout du produit: ' + (data.error || 'Erreur inconnue'));
+                    }
+                } catch (e) {
+                    console.error('Parse error:', e);
+                    console.error('Raw response:', text);
+                    alert('Erreur de réponse serveur. Voir la console pour plus de détails.');
                 }
             })
             .catch(error => {
