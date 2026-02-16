@@ -44,7 +44,7 @@ class BesoinController
         $besoinModel = new BesoinModel(Flight::db());
         $besoinModel->insertBesoin($data);
         
-        $this->app->redirect('/besoinsform');
+        $this->app->redirect('besoinsform');
     }
     
     public function insertProduit() {
