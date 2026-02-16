@@ -14,65 +14,64 @@ $activePage = 'besoins';
                                 <i class="bi bi-plus-circle me-2"></i> Ajouter un Besoin
                             </div>
                             <div class="card-body">
-                                <form id="formBesoin">
+                                <form id="formBesoin" method="POST" action="<?= BASE_URL ?>besoinsInsert">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="ville" class="form-label">
                                                 <i class="bi bi-geo-alt-fill text-primary"></i> Ville
                                             </label>
-                                            <select class="form-select" id="ville" required>
+                                            <select class="form-select" id="ville" name="ville" required>
                                                 <option value="">Sélectionner une ville</option>
-                                                <option value="Antananarivo">Antananarivo</option>
-                                                <option value="Antsirabe">Antsirabe</option>
-                                                <option value="Fianarantsoa">Fianarantsoa</option>
-                                                <option value="Toamasina">Toamasina</option>
-                                                <option value="Mahajanga">Mahajanga</option>
-                                                <option value="Toliara">Toliara</option>
+                                                <?php if(isset($villes) && !empty($villes)): ?>
+                                                    <?php foreach($villes as $ville): ?>
+                                                        <option value="<?= $ville['id'] ?>"><?= htmlspecialchars($ville['nom']) ?> (<?= htmlspecialchars($ville['region_nom']) ?>)</option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </select>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label for="typeBesoin" class="form-label">
-                                                <i class="bi bi-tag-fill text-success"></i> Type de Besoin
+                                            <label for="produit" class="form-label">
+                                                <i class="bi bi-box-fill text-success"></i> Produit
                                             </label>
-                                            <select class="form-select" id="typeBesoin" required>
-                                                <option value="">Sélectionner un type</option>
-                                                <option value="nature">En nature</option>
-                                                <option value="materiel">Matériaux</option>
-                                                <option value="argent">Argent</option>
-                                            </select>
+                                            <div class="input-group">
+                                                <select class="form-select" id="produit" name="produit" required>
+                                                    <option value="">Sélectionner un produit</option>
+                                                    <?php if(isset($produits) && !empty($produits)): ?>
+                                                        <?php foreach($produits as $produit): ?>
+                                                            <option value="<?= $produit['id'] ?>" data-prix="<?= $produit['prix_unitaire'] ?>">
+                                                                <?= htmlspecialchars($produit['nom']) ?> - <?= number_format($produit['prix_unitaire'], 0, ',', ' ') ?> Ar
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                                <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalNouveauProduit">
+                                                    <i class="bi bi-plus-circle"></i> Nouveau
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <div class="col-md-12 mb-3">
-                                            <label for="designation" class="form-label">
-                                                <i class="bi bi-pencil-fill text-info"></i> Désignation
+                                            <label for="description" class="form-label">
+                                                <i class="bi bi-pencil-fill text-info"></i> Description (Optionnel)
                                             </label>
-                                            <input type="text" class="form-control" id="designation" 
-                                                   placeholder="Ex: Riz, Tôle, Aide financière..." required>
+                                            <textarea class="form-control" id="description" name="description" rows="2"
+                                                   placeholder="Ex: Pour reconstruction de maisons..."></textarea>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <label for="quantite" class="form-label">
                                                 <i class="bi bi-plus-slash-minus text-warning"></i> Quantité
                                             </label>
-                                            <input type="number" class="form-control" id="quantite" 
+                                            <input type="number" class="form-control" id="quantite" name="quantite"
                                                    placeholder="Ex: 100" min="1" required>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label for="unite" class="form-label">
-                                                <i class="bi bi-rulers text-secondary"></i> Unité
+                                            <label for="prixTotal" class="form-label">
+                                                <i class="bi bi-cash text-success"></i> Prix Total Estimé (Ar)
                                             </label>
-                                            <input type="text" class="form-control" id="unite" 
-                                                   placeholder="Ex: kg, L, pièces, Ar" required>
-                                        </div>
-
-                                        <div class="col-md-12 mb-3">
-                                            <label for="prixUnitaire" class="form-label">
-                                                <i class="bi bi-cash text-success"></i> Prix Unitaire (Ar)
-                                            </label>
-                                            <input type="number" class="form-control" id="prixUnitaire" 
-                                                   placeholder="Ex: 5000" min="0" step="0.01" required>
+                                            <input type="text" class="form-control" id="prixTotal" readonly>
                                         </div>
                                     </div>
 
@@ -202,72 +201,58 @@ $activePage = 'besoins';
         </div>
     </div>
 
+    <!-- Modal Nouveau Produit -->
+    <div class="modal fade" id="modalNouveauProduit" tabindex="-1" aria-labelledby="modalNouveauProduitLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalNouveauProduitLabel">
+                        <i class="bi bi-plus-circle"></i> Ajouter un Nouveau Produit
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNouveauProduit">
+                        <div class="mb-3">
+                            <label for="nomProduit" class="form-label">
+                                <i class="bi bi-box"></i> Nom du Produit
+                            </label>
+                            <input type="text" class="form-control" id="nomProduit" name="nom_produit" 
+                                   placeholder="Ex: Riz 25kg, Tôle 3m" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categorieProduit" class="form-label">
+                                <i class="bi bi-tag"></i> Catégorie
+                            </label>
+                            <select class="form-select" id="categorieProduit" name="categorie" required>
+                                <option value="">Sélectionner une catégorie</option>
+                                <?php if(isset($categories) && !empty($categories)): ?>
+                                    <?php foreach($categories as $cat): ?>
+                                        <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['nom']) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prixUnitaireProduit" class="form-label">
+                                <i class="bi bi-cash"></i> Prix Unitaire (Ar)
+                            </label>
+                            <input type="number" class="form-control" id="prixUnitaireProduit" name="prix_unitaire"
+                                   placeholder="Ex: 5000" min="0" step="0.01" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveProduit">
+                        <i class="bi bi-save"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Gestion du formulaire
-        document.getElementById('formBesoin').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Récupérer les valeurs
-            const ville = document.getElementById('ville').value;
-            const type = document.getElementById('typeBesoin').value;
-            const designation = document.getElementById('designation').value;
-            const quantite = document.getElementById('quantite').value;
-            const unite = document.getElementById('unite').value;
-            const prix = parseFloat(document.getElementById('prixUnitaire').value);
-            
-            // Calculer le total
-            const total = (quantite * prix).toLocaleString('fr-FR');
-            
-            // Déterminer le badge de type
-            let badgeClass = '';
-            let badgeText = '';
-            switch(type) {
-                case 'nature':
-                    badgeClass = 'bg-success';
-                    badgeText = 'Nature';
-                    break;
-                case 'materiel':
-                    badgeClass = 'bg-info';
-                    badgeText = 'Matériaux';
-                    break;
-                case 'argent':
-                    badgeClass = 'bg-warning text-dark';
-                    badgeText = 'Argent';
-                    break;
-            }
-            
-            // Créer la ligne
-            const date = new Date().toLocaleDateString('fr-FR');
-            const newRow = `
-                <tr>
-                    <td><i class="bi bi-geo-alt-fill text-primary"></i> ${ville}</td>
-                    <td><span class="badge ${badgeClass} badge-custom">${badgeText}</span></td>
-                    <td>${designation}</td>
-                    <td>${quantite} ${unite}</td>
-                    <td>${prix.toLocaleString('fr-FR')} Ar</td>
-                    <td class="fw-bold">${total} Ar</td>
-                    <td>${date}</td>
-                    <td>
-                        <button class="btn btn-sm btn-info btn-action">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger btn-action">
-                            <i class="bi bi-trash-fill"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            
-            // Ajouter la ligne au tableau
-            document.getElementById('tableBesoins').insertAdjacentHTML('afterbegin', newRow);
-            
-            // Réinitialiser le formulaire
-            this.reset();
-            
-            // Message de succès
-            alert('Besoin enregistré avec succès!');
-        });
-    </script>
+    <script src="<?= BASE_URL ?>assets/js/besoins.js"></script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
