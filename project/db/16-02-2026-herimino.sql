@@ -91,7 +91,18 @@ INSERT INTO s3fin_don (id_product, descriptions, quantite) VALUES
 (2, 'Lot de tôles', 10),
 (3, 'Don en espèces', 200000);
 
-INSERT INTO s3fin_product (id, nom) VALUES
-(4, 'kilalao'),
-(5, 'siramamy'),
-(6, 'jiro');
+INSERT INTO s3fin_product (id, nom, prix_unitaire, categorie_id) VALUES
+(4, 'kilalao', 5000, 1),
+(5, 'siramamy', 3000, 1),
+(6, 'jiro', 10000, 2);
+
+-- Table des distributions
+CREATE TABLE IF NOT EXISTS s3fin_distribution (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    besoin_id INT NOT NULL,
+    don_id INT NOT NULL,
+    quantite_distribuee INT NOT NULL,
+    date_distribution TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (besoin_id) REFERENCES s3fin_besoin(id),
+    FOREIGN KEY (don_id) REFERENCES s3fin_don(id)
+);
