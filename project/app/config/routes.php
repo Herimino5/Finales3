@@ -4,6 +4,7 @@ use app\controllers\ApiExampleController;
 use app\controllers\DashboardController;
 use app\middlewares\SecurityHeadersMiddleware;
 use app\controllers\BesoinController;
+use app\controllers\DistributionController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -19,6 +20,13 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/',[DashboardController::class,'index'] );
 	$router->get('/besoinsform', [ BesoinController::class, 'saisirBesoin' ]);
 	$router->post('/besoinsInsert', [ BesoinController::class, 'insertBesoin' ]);
+	$router->post('/produitsInsert', [ BesoinController::class, 'insertProduit' ]);
+	$router->get('/donsform', function() use ($app) {
+		$app->render('dons', [ 'message' => 'niova ve You are gonna do great things!' ]);
+	});
+	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
+	$router->get('/distributions', [ DistributionController::class, 'index' ]);
+	$router->post('/distribuerAutomatique', [ DistributionController::class, 'distribuerAutomatique' ]);
 	$router->get('/donsform', [ DonsController::class, 'index' ]);
 	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
 	$router->post('/donsProductInsert', [ DonsController::class, 'insertProduct' ]);

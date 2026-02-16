@@ -5,90 +5,103 @@ $activePage = 'distributions';
 <?php include __DIR__ . '/includes/header.php'; ?>
 
                         <h2 class="mb-4" style="color: #2c3e50; font-weight: 700;">
-                            <i class="bi bi-arrow-left-right"></i> Simulation de Distribution
+                            <i class="bi bi-arrow-left-right"></i> Distribution des Dons
                         </h2>
+
+                        <?php if(isset($success)): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i><?= $success ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(isset($error)): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i><?= $error ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <?php endif; ?>
 
                         <!-- Informations -->
                         <div class="alert-info-custom">
                             <h5><i class="bi bi-info-circle-fill me-2"></i> Algorithme de Distribution</h5>
-                            <p class="mb-0">Les dons sont distribués automatiquement selon l'ordre de date et de saisie. Le système attribue les dons disponibles aux villes ayant des besoins correspondants en priorité.</p>
+                            <p class="mb-0">Les dons sont distribués automatiquement selon l'ordre de date de saisie (FIFO). Le système attribue les dons disponibles aux besoins les plus anciens en priorité.</p>
                         </div>
 
                         <!-- Bouton de simulation -->
                         <div class="card card-custom">
                             <div class="card-header">
-                                <i class="bi bi-play-circle me-2"></i> Lancer la Simulation
+                                <i class="bi bi-play-circle me-2"></i> Lancer la Distribution
                             </div>
                             <div class="card-body text-center">
-                                <p class="text-muted">Cliquez sur le bouton ci-dessous pour simuler la distribution automatique des dons disponibles.</p>
-                                <button class="btn btn-primary-custom btn-custom btn-lg" id="btnSimuler">
-                                    <i class="bi bi-play-fill me-2"></i> Simuler la Distribution
-                                </button>
+                                <p class="text-muted">Cliquez sur le bouton ci-dessous pour lancer la distribution automatique des dons disponibles.</p>
+                                <form method="POST" action="<?= BASE_URL ?>distribuerAutomatique">
+                                    <button type="submit" class="btn btn-primary-custom btn-custom btn-lg">
+                                        <i class="bi bi-play-fill me-2"></i> Distribuer Automatiquement
+                                    </button>
+                                </form>
                             </div>
                         </div>
 
-                        <!-- Résultats de simulation -->
-                        <div class="card card-custom" id="resultatsSimulation" style="display: none;">
+                        <?php if(isset($resultats) && !empty($resultats)): ?>
+                        <!-- Résultats de distribution -->
+                        <div class="card card-custom mt-4">
                             <div class="card-header">
-                                <i class="bi bi-check2-circle me-2"></i> Résultats de la Simulation
+                                <i class="bi bi-check2-circle me-2"></i> Résultats de la Distribution
                             </div>
                             <div class="card-body">
-                                <div class="row">
+                                <?php 
+                                $villes = [];
+                                $total_distribue = 0;
+                                foreach($resultats as $r) {
+                                    if(!isset($villes[$r['besoin_ville']])) {
+                                        $villes[$r['besoin_ville']] = [];
+                                    }
+                                    $villes[$r['besoin_ville']][] = $r;
+                                    $total_distribue++;
+                                }
+                                ?>
+                                
+                                <div class="row mb-4">
                                     <div class="col-md-4 text-center mb-3">
-                                        <h3 class="text-success">15</h3>
+                                        <h3 class="text-success"><?= $total_distribue ?></h3>
                                         <p class="text-muted">Distributions effectuées</p>
                                     </div>
                                     <div class="col-md-4 text-center mb-3">
-                                        <h3 class="text-info">4</h3>
+                                        <h3 class="text-info"><?= count($villes) ?></h3>
                                         <p class="text-muted">Villes servies</p>
                                     </div>
                                     <div class="col-md-4 text-center mb-3">
-                                        <h3 class="text-warning">3.2M Ar</h3>
-                                        <p class="text-muted">Valeur totale</p>
+                                        <h3 class="text-warning"><?= count($resultats) ?></h3>
+                                        <p class="text-muted">Produits distribués</p>
                                     </div>
                                 </div>
 
                                 <h5 class="mt-4 mb-3">Détails des distributions :</h5>
                                 
+                                <?php foreach($villes as $ville => $distributions): ?>
                                 <div class="timeline-item">
-                                    <h5><i class="bi bi-geo-alt-fill me-2"></i> Antananarivo</h5>
+                                    <h5><i class="bi bi-geo-alt-fill me-2"></i> <?= htmlspecialchars($ville) ?></h5>
                                     <ul>
-                                        <li>200 kg de riz distribués (600,000 Ar)</li>
-                                        <li>50 tôles distribuées (1,250,000 Ar)</li>
-                                        <li>300,000 Ar d'aide financière</li>
+                                        <?php foreach($distributions as $dist): ?>
+                                        <li><?= htmlspecialchars($dist['produit']) ?> - Quantité: <?= $dist['quantite'] ?>
+                                            <small class="text-muted">(Besoin: <?= date('d/m/Y H:i', strtotime($dist['date_besoin'])) ?>, Don: <?= date('d/m/Y H:i', strtotime($dist['date_don'])) ?>)</small>
+                                        </li>
+                                        <?php endforeach; ?>
                                     </ul>
                                 </div>
-
-                                <div class="timeline-item">
-                                    <h5><i class="bi bi-geo-alt-fill me-2"></i> Antsirabe</h5>
-                                    <ul>
-                                        <li>100 kg de riz distribués (300,000 Ar)</li>
-                                        <li>30 tôles distribuées (750,000 Ar)</li>
-                                    </ul>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <h5><i class="bi bi-geo-alt-fill me-2"></i> Fianarantsoa</h5>
-                                    <ul>
-                                        <li>150 kg de riz distribués (450,000 Ar)</li>
-                                        <li>40 L d'huile distribués (320,000 Ar)</li>
-                                    </ul>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <h5><i class="bi bi-geo-alt-fill me-2"></i> Toamasina</h5>
-                                    <ul>
-                                        <li>180 kg de riz distribués (540,000 Ar)</li>
-                                        <li>25 tôles distribuées (625,000 Ar)</li>
-                                    </ul>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
+                        <?php endif; ?>
 
                         <!-- Historique des distributions -->
                         <div class="card card-custom mt-4">
                             <div class="card-header">
                                 <i class="bi bi-clock-history me-2"></i> Historique des Distributions
+                                <?php if(isset($totalDistributions)): ?>
+                                    <span class="badge bg-primary float-end"><?= $totalDistributions ?> distribution(s)</span>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -98,87 +111,70 @@ $activePage = 'distributions';
                                                 <th>ID</th>
                                                 <th>Date Distribution</th>
                                                 <th>Ville</th>
-                                                <th>Don</th>
+                                                <th>Produit</th>
                                                 <th>Quantité</th>
-                                                <th>Type Besoin</th>
-                                                <th>Valeur</th>
-                                                <th>Statut</th>
+                                                <th>Catégorie</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td><strong>#001</strong></td>
-                                                <td>16/02/2026 14:30</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antananarivo</td>
-                                                <td>Riz</td>
-                                                <td>150 kg</td>
-                                                <td><span class="badge bg-success badge-custom">Nature</span></td>
-                                                <td>450,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>#002</strong></td>
-                                                <td>16/02/2026 13:15</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Toamasina</td>
-                                                <td>Tôle</td>
-                                                <td>50 pièces</td>
-                                                <td><span class="badge bg-info badge-custom">Matériaux</span></td>
-                                                <td>1,250,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>#003</strong></td>
-                                                <td>16/02/2026 11:00</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antsirabe</td>
-                                                <td>Aide financière</td>
-                                                <td>200,000 Ar</td>
-                                                <td><span class="badge bg-warning text-dark badge-custom">Argent</span></td>
-                                                <td>200,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>#004</strong></td>
-                                                <td>16/02/2026 09:45</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Fianarantsoa</td>
-                                                <td>Huile</td>
-                                                <td>80 L</td>
-                                                <td><span class="badge bg-success badge-custom">Nature</span></td>
-                                                <td>640,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>#005</strong></td>
-                                                <td>15/02/2026 16:30</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antananarivo</td>
-                                                <td>Clous</td>
-                                                <td>30 kg</td>
-                                                <td><span class="badge bg-info badge-custom">Matériaux</span></td>
-                                                <td>360,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>#006</strong></td>
-                                                <td>15/02/2026 14:15</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Toamasina</td>
-                                                <td>Riz</td>
-                                                <td>100 kg</td>
-                                                <td><span class="badge bg-success badge-custom">Nature</span></td>
-                                                <td>300,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>#007</strong></td>
-                                                <td>15/02/2026 11:20</td>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antsirabe</td>
-                                                <td>Tôle</td>
-                                                <td>40 pièces</td>
-                                                <td><span class="badge bg-info badge-custom">Matériaux</span></td>
-                                                <td>1,000,000 Ar</td>
-                                                <td><span class="badge bg-success">Complété</span></td>
-                                            </tr>
+                                            <?php if(isset($distributions) && !empty($distributions)): ?>
+                                                <?php foreach($distributions as $dist): ?>
+                                                    <tr>
+                                                        <td><strong>#<?= str_pad($dist['id'], 3, '0', STR_PAD_LEFT) ?></strong></td>
+                                                        <td><?= date('d/m/Y H:i', strtotime($dist['date_distribution'])) ?></td>
+                                                        <td><i class="bi bi-geo-alt-fill text-primary"></i> <?= htmlspecialchars($dist['ville_nom']) ?></td>
+                                                        <td><?= htmlspecialchars($dist['produit_nom']) ?></td>
+                                                        <td><?= number_format($dist['quantite_distribuee'], 0, ',', ' ') ?></td>
+                                                        <td>
+                                                            <?php 
+                                                            $badgeClass = 'bg-secondary';
+                                                            if($dist['categorie_nom'] == 'Nature') $badgeClass = 'bg-success';
+                                                            elseif($dist['categorie_nom'] == 'Matériaux') $badgeClass = 'bg-info';
+                                                            elseif($dist['categorie_nom'] == 'Argent') $badgeClass = 'bg-warning text-dark';
+                                                            ?>
+                                                            <span class="badge <?= $badgeClass ?> badge-custom"><?= htmlspecialchars($dist['categorie_nom']) ?></span>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted">Aucune distribution effectuée</td>
+                                                </tr>
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
+                                
+                                <!-- Pagination -->
+                                <?php if(isset($totalPages) && $totalPages > 1): ?>
+                                    <nav aria-label="Navigation de pagination" class="mt-4">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
+                                                <a class="page-link" href="<?= BASE_URL ?>distributions?page=<?= $currentPage - 1 ?>" tabindex="-1">
+                                                    <i class="bi bi-chevron-left"></i> Précédent
+                                                </a>
+                                            </li>
+                                            
+                                            <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                                                <?php if($i == 1 || $i == $totalPages || ($i >= $currentPage - 2 && $i <= $currentPage + 2)): ?>
+                                                    <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                                                        <a class="page-link" href="<?= BASE_URL ?>distributions?page=<?= $i ?>"><?= $i ?></a>
+                                                    </li>
+                                                <?php elseif($i == $currentPage - 3 || $i == $currentPage + 3): ?>
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link">...</span>
+                                                    </li>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                            
+                                            <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
+                                                <a class="page-link" href="<?= BASE_URL ?>distributions?page=<?= $currentPage + 1 ?>">
+                                                    Suivant <i class="bi bi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
