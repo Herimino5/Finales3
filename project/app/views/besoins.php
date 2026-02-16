@@ -39,8 +39,8 @@ $activePage = 'besoins';
                                                     <option value="">Sélectionner un produit</option>
                                                     <?php if(isset($produits) && !empty($produits)): ?>
                                                         <?php foreach($produits as $produit): ?>
-                                                            <option value="<?= $produit['id'] ?>" data-prix="<?= $produit['prix_unitaire'] ?>">
-                                                                <?= htmlspecialchars($produit['nom']) ?> - <?= number_format($produit['prix_unitaire'], 0, ',', ' ') ?> Ar
+                                                            <option value="<?= $produit['id'] ?>" data-prix="<?= $produit['prix_unitaire'] ?? 0 ?>">
+                                                                <?= htmlspecialchars($produit['nom']) ?> - <?= number_format($produit['prix_unitaire'] ?? 0, 0, ',', ' ') ?> Ar
                                                             </option>
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
