@@ -36,4 +36,24 @@ class BesoinModel {
         return $this->db->lastInsertId();
     }
 
+    /**
+     * Récupère le total des besoins depuis la table s3fin_besoin
+     */
+    public function getTotalBesoins() {
+        $sql = "SELECT COALESCE(SUM(quantite), 0) AS total FROM s3fin_besoin";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+    }
+
+    /**
+     * Récupère le nombre de villes ayant des besoins
+     */
+    public function countVillesAvecBesoins() {
+        $sql = "SELECT COUNT(DISTINCT ville_id) AS total FROM s3fin_besoin";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+    }
+
 }

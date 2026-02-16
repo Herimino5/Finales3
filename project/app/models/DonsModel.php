@@ -34,4 +34,14 @@ class DonsModel {
         $stmt->execute();
         return $stmt->fetch(\PDO::FETCH_ASSOC)['total_dons'];
     }
+
+    /**
+     * Récupère le total des quantités de dons depuis la table s3fin_don
+     */
+    public function getTotalDons() {
+        $sql = "SELECT COALESCE(SUM(quantite), 0) AS total FROM s3fin_don";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+    }
 }
