@@ -15,6 +15,6 @@ class DashboardController
     public function index() {
         $besoinModel = new BesoinModel(Flight::db());
         $data = $besoinModel->getBesoinDonsParVille();
-        $this->app->render('dashboard', [ 'data' => $data ]);
+        $this->app->render('index', [ 'data' => $data ]);
     }
 }
