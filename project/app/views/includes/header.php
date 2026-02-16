@@ -53,6 +53,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link <?= (isset($activePage) && $activePage === 'achats') ? 'active' : '' ?>" href="<?= BASE_URL ?>achats">
+                                    <i class="bi bi-cash-coin me-2"></i> Achats
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link <?= (isset($activePage) && $activePage === 'villes') ? 'active' : '' ?>" href="<?= BASE_URL ?>villes">
                                     <i class="bi bi-geo-alt me-2"></i> Villes
                                 </a>
