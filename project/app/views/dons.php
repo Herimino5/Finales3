@@ -32,7 +32,7 @@ $activePage = 'dons';
                                                     <?php if(isset($products) && !empty($products)): ?>
                                                         <?php foreach($products as $produit): ?>
                                                             <option value="<?= $produit['id'] ?>">
-                                                                <?= htmlspecialchars($produit['nom']) ?> (<?= number_format($produit['prix_unitaire'], 0, ',', ' ') ?> Ar)
+                                                                <?= htmlspecialchars($produit['nom']) ?> (<?= number_format($produit['prix_unitaire'] ?? 0, 0, ',', ' ') ?> Ar)
                                                             </option>
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
