@@ -1,3 +1,6 @@
+                    </div><!-- .p-4 -->
+                </div><!-- .col-md-9 -->
+            </div><!-- .row g-0 -->
         </div><!-- .main-container -->
     </div><!-- .container-fluid -->
 
