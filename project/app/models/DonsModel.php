@@ -28,4 +28,10 @@ class DonsModel {
             'quantite' => $quantite
         ]);
     }
+    public function countDons() {
+        $sql = "SELECT COUNT(*) AS total_dons FROM s3fin_don";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC)['total_dons'];
+    }
 }
