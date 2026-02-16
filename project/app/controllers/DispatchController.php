@@ -2,20 +2,17 @@
 namespace app\controllers;
 
 use flight\Engine;
-use app\models\DistributionModel;
-use app\models\AchatModel;
-use app\models\BesoinModel;
-use app\models\DonsModel;
+use app\models\DispatchModel;
 use Flight;
 
 class DispatchController
 {
     protected Engine $app;
-    protected $db;
+    protected $model;
 
     public function __construct($app) {
         $this->app = $app;
-        $this->db = Flight::db();
+        $this->model = new DispatchModel(Flight::db());
     }
 
     /**
@@ -26,21 +23,7 @@ class DispatchController
      */
     public function verifierBesoinCouvert($besoinId) {
         try {
-            // Récupérer le besoin avec sa quantité totale et distribuée
-            $sql = "SELECT b.id, b.quantite as quantite_demandee, b.id_product, b.ville_id,
-                           p.nom as produit_nom, p.prix_unitaire,
-                           c.nom as categorie_nom,
-                           v.nom as ville_nom,
-                           COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE besoin_id = b.id), 0) as quantite_distribuee
-                    FROM s3fin_besoin b
-                    JOIN s3fin_product p ON b.id_product = p.id
-                    JOIN s3fin_categorie c ON p.categorie_id = c.id
-                    JOIN s3fin_ville v ON b.ville_id = v.id
-                    WHERE b.id = :besoin_id";
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([':besoin_id' => $besoinId]);
-            $besoin = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $besoin = $this->model->getBesoinById($besoinId);
 
             if (!$besoin) {
                 return [
@@ -101,24 +84,8 @@ class DispatchController
             }
 
             // Vérifier si des dons en nature/matériaux sont disponibles pour ce produit
-            $sqlDonsDisponibles = "SELECT d.id, d.quantite, 
-                                          COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE don_id = d.id), 0) as distribue,
-                                          (d.quantite - COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE don_id = d.id), 0)) as disponible
-                                   FROM s3fin_don d
-                                   JOIN s3fin_product p ON d.id_product = p.id
-                                   JOIN s3fin_categorie c ON p.categorie_id = c.id
-                                   WHERE d.id_product = :product_id 
-                                   AND c.nom != 'Argent'
-                                   HAVING disponible > 0";
-            
-            $stmtDons = $this->db->prepare($sqlDonsDisponibles);
-            $stmtDons->execute([':product_id' => $productId]);
-            $donsDisponibles = $stmtDons->fetchAll(\PDO::FETCH_ASSOC);
-
-            $totalDonsDisponibles = 0;
-            foreach ($donsDisponibles as $don) {
-                $totalDonsDisponibles += $don['disponible'];
-            }
+            $donsDisponibles = $this->model->getDonsDisponiblesNatureMateriaux($productId);
+            $totalDonsDisponibles = $this->model->getTotalDonsDisponibles($productId);
 
             // Si des dons en nature sont disponibles et suffisants, bloquer l'achat
             if ($totalDonsDisponibles >= $verificationBesoin['quantite_restante']) {
@@ -162,17 +129,17 @@ class DispatchController
      */
     public function attribuerDon($besoinId, $donId, $quantite) {
         try {
-            $this->db->beginTransaction();
+            $this->model->beginTransaction();
 
             // Vérifier le besoin
             $verificationBesoin = $this->verifierBesoinCouvert($besoinId);
             if (!$verificationBesoin['success']) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return $verificationBesoin;
             }
 
             if ($verificationBesoin['est_couvert']) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return [
                     'success' => false,
                     'message' => 'Ce besoin est déjà entièrement couvert'
@@ -180,16 +147,10 @@ class DispatchController
             }
 
             // Vérifier le don disponible
-            $sqlDon = "SELECT d.id, d.quantite, d.id_product,
-                              COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE don_id = d.id), 0) as distribue
-                       FROM s3fin_don d
-                       WHERE d.id = :don_id";
-            $stmtDon = $this->db->prepare($sqlDon);
-            $stmtDon->execute([':don_id' => $donId]);
-            $don = $stmtDon->fetch(\PDO::FETCH_ASSOC);
+            $don = $this->model->getDonById($donId);
 
             if (!$don) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return [
                     'success' => false,
                     'message' => 'Don introuvable'
@@ -198,7 +159,7 @@ class DispatchController
 
             $donDisponible = $don['quantite'] - $don['distribue'];
             if ($donDisponible <= 0) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return [
                     'success' => false,
                     'message' => 'Ce don est déjà entièrement distribué'
@@ -209,16 +170,9 @@ class DispatchController
             $quantiteADistribuer = min($quantite, $donDisponible, $verificationBesoin['quantite_restante']);
 
             // Insérer la distribution
-            $sqlDistrib = "INSERT INTO s3fin_distribution (besoin_id, don_id, quantite_distribuee, date_distribution)
-                           VALUES (:besoin_id, :don_id, :quantite, NOW())";
-            $stmtDistrib = $this->db->prepare($sqlDistrib);
-            $stmtDistrib->execute([
-                ':besoin_id' => $besoinId,
-                ':don_id' => $donId,
-                ':quantite' => $quantiteADistribuer
-            ]);
+            $this->model->creerDistribution($besoinId, $donId, $quantiteADistribuer);
 
-            $this->db->commit();
+            $this->model->commit();
 
             return [
                 'success' => true,
@@ -230,7 +184,7 @@ class DispatchController
             ];
 
         } catch (\PDOException $e) {
-            $this->db->rollBack();
+            $this->model->rollBack();
             return [
                 'success' => false,
                 'message' => 'Erreur de base de données: ' . $e->getMessage()
@@ -248,18 +202,13 @@ class DispatchController
      */
     public function attribuerAchat($besoinId, $achatId, $quantite) {
         try {
-            $this->db->beginTransaction();
+            $this->model->beginTransaction();
 
             // Vérifier si l'achat est autorisé
-            $sqlAchat = "SELECT a.id, a.product_id, a.quantite, a.don_id
-                         FROM s3fin_achat a
-                         WHERE a.id = :achat_id";
-            $stmtAchat = $this->db->prepare($sqlAchat);
-            $stmtAchat->execute([':achat_id' => $achatId]);
-            $achat = $stmtAchat->fetch(\PDO::FETCH_ASSOC);
+            $achat = $this->model->getAchatById($achatId);
 
             if (!$achat) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return [
                     'success' => false,
                     'message' => 'Achat introuvable'
@@ -270,14 +219,14 @@ class DispatchController
             $verification = $this->verifierAchatAutorise($besoinId, $achat['product_id'], $quantite);
             
             if (!$verification['success'] || !$verification['autorise']) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return $verification;
             }
 
             // Vérifier le besoin
             $verificationBesoin = $this->verifierBesoinCouvert($besoinId);
             if ($verificationBesoin['est_couvert']) {
-                $this->db->rollBack();
+                $this->model->rollBack();
                 return [
                     'success' => false,
                     'message' => 'Ce besoin est déjà entièrement couvert'
@@ -287,17 +236,9 @@ class DispatchController
             $quantiteADistribuer = min($quantite, $verification['quantite_autorisee'], $verificationBesoin['quantite_restante']);
 
             // Insérer la distribution avec référence à l'achat
-            $sqlDistrib = "INSERT INTO s3fin_distribution (besoin_id, don_id, quantite_distribuee, date_distribution, achat_id)
-                           VALUES (:besoin_id, :don_id, :quantite, NOW(), :achat_id)";
-            $stmtDistrib = $this->db->prepare($sqlDistrib);
-            $stmtDistrib->execute([
-                ':besoin_id' => $besoinId,
-                ':don_id' => $achat['don_id'],
-                ':quantite' => $quantiteADistribuer,
-                ':achat_id' => $achatId
-            ]);
+            $this->model->creerDistributionAvecAchat($besoinId, $achat['don_id'], $achatId, $quantiteADistribuer);
 
-            $this->db->commit();
+            $this->model->commit();
 
             return [
                 'success' => true,
@@ -308,7 +249,7 @@ class DispatchController
             ];
 
         } catch (\PDOException $e) {
-            $this->db->rollBack();
+            $this->model->rollBack();
             return [
                 'success' => false,
                 'message' => 'Erreur de base de données: ' . $e->getMessage()
@@ -324,33 +265,11 @@ class DispatchController
      */
     public function getBesoinsNonCouverts($villeId = null) {
         try {
-            $sql = "SELECT b.id, b.quantite as quantite_demandee, b.descriptions,
-                           b.Date_saisie, b.id_product, b.ville_id,
-                           p.nom as produit_nom, p.prix_unitaire,
-                           c.nom as categorie_nom,
-                           v.nom as ville_nom,
-                           COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE besoin_id = b.id), 0) as quantite_distribuee,
-                           (b.quantite - COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE besoin_id = b.id), 0)) as quantite_restante
-                    FROM s3fin_besoin b
-                    JOIN s3fin_product p ON b.id_product = p.id
-                    JOIN s3fin_categorie c ON p.categorie_id = c.id
-                    JOIN s3fin_ville v ON b.ville_id = v.id
-                    WHERE (b.quantite - COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE besoin_id = b.id), 0)) > 0";
-            
-            $params = [];
-            if ($villeId) {
-                $sql .= " AND b.ville_id = :ville_id";
-                $params[':ville_id'] = $villeId;
-            }
-            
-            $sql .= " ORDER BY b.Date_saisie ASC";
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute($params);
+            $besoins = $this->model->getBesoinsNonCouverts($villeId);
             
             return [
                 'success' => true,
-                'besoins' => $stmt->fetchAll(\PDO::FETCH_ASSOC)
+                'besoins' => $besoins
             ];
 
         } catch (\PDOException $e) {
