@@ -5,6 +5,8 @@ use app\controllers\DashboardController;
 use app\middlewares\SecurityHeadersMiddleware;
 use app\controllers\BesoinController;
 use app\controllers\DistributionController;
+use app\controllers\AchatController;
+use app\controllers\DispatchController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -30,6 +32,23 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/donsform', [ DonsController::class, 'index' ]);
 	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
 	$router->post('/donsProductInsert', [ DonsController::class, 'insertProduct' ]);
+
+	// Routes Achats
+	$router->get('/achats', [ AchatController::class, 'index' ]);
+	
+	// API Achats
+	$router->post('/api/achat/simulate', [ AchatController::class, 'apiSimulateAchat' ]);
+	$router->post('/api/achat/validate', [ AchatController::class, 'apiValidateAchat' ]);
+	$router->get('/api/achat/list', [ AchatController::class, 'apiGetAllAchats' ]);
+	$router->get('/api/achat/ville/@villeId', [ AchatController::class, 'apiGetAchatsByVille' ]);
+	$router->get('/api/achat/dons-argent', [ AchatController::class, 'apiGetDonsArgent' ]);
+
+	// API Dispatch
+	$router->get('/api/dispatch/besoins', [ DispatchController::class, 'apiGetBesoinsNonCouverts' ]);
+	$router->post('/api/dispatch/verifier-achat', [ DispatchController::class, 'apiVerifierAchat' ]);
+	$router->post('/api/dispatch/attribuer-don', [ DispatchController::class, 'apiAttribuerDon' ]);
+	$router->get('/api/dispatch/besoin/@besoinId', [ DispatchController::class, 'apiVerifierBesoin' ]);
+
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
 	// });
