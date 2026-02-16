@@ -81,31 +81,44 @@ class BesoinController
             'totalPages' => $totalPages,
             'totalBesoins' => $totalBesoins,
             'success' => 'Besoin enregistré avec succès!',
-           
+            'BASE_URL' => BASE_URL
         ]);
     }
     
     public function insertProduit() {
-        // Récupérer les données du nouveau produit
-        $data = [
-            'nom' => Flight::request()->data->nom_produit ?? '',
-            'prix_unitaire' => Flight::request()->data->prix_unitaire ?? 0,
-            'categorie_id' => Flight::request()->data->categorie ?? null
-        ];
-        
-        // Insérer le produit
-        $produitModel = new ProduitModel(Flight::db());
-        $produitId = $produitModel->insertProduit($data);
-        
-        if ($produitId) {
-            Flight::json([
-                'success' => true, 
-                'id' => $produitId,
-                'nom' => $data['nom'],
-                'prix_unitaire' => $data['prix_unitaire']
-            ]);
-        } else {
-            Flight::json(['success' => false, 'error' => 'Erreur lors de l\'insertion']);
+        try {
+            // Récupérer les données JSON
+            $requestData = Flight::request()->data->getData();
+            
+            // Récupérer les données du nouveau produit
+            $data = [
+                'nom' => $requestData['nom_produit'] ?? '',
+                'prix_unitaire' => $requestData['prix_unitaire'] ?? 0,
+                'categorie_id' => $requestData['categorie'] ?? null
+            ];
+            
+            // Validation basique
+            if (empty($data['nom']) || empty($data['categorie_id'])) {
+                Flight::json(['success' => false, 'error' => 'Données manquantes']);
+                return;
+            }
+            
+            // Insérer le produit
+            $produitModel = new ProduitModel(Flight::db());
+            $produitId = $produitModel->insertProduit($data);
+            
+            if ($produitId) {
+                Flight::json([
+                    'success' => true, 
+                    'id' => $produitId,
+                    'nom' => $data['nom'],
+                    'prix_unitaire' => $data['prix_unitaire']
+                ]);
+            } else {
+                Flight::json(['success' => false, 'error' => 'Erreur lors de l\'insertion']);
+            }
+        } catch (\Exception $e) {
+            Flight::json(['success' => false, 'error' => $e->getMessage()]);
         }
     }
 

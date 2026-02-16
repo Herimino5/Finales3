@@ -45,19 +45,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     alert('Produit ajouté avec succès!');
                     // Recharger la page pour mettre à jour la liste des produits
                     window.location.reload();
                 } else {
-                    alert('Erreur lors de l\'ajout du produit');
+                    alert('Erreur lors de l\'ajout du produit: ' + (data.error || 'Erreur inconnue'));
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert('Erreur lors de l\'ajout du produit');
+                alert('Erreur lors de l\'ajout du produit: ' + error.message);
             });
         });
     }
