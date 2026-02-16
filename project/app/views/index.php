@@ -4,8 +4,11 @@ $activePage = 'dashboard';
 
 // Organiser les données par ville
 $villesData = [];
-$totalDons = 0;
-$totalBesoins = 0;
+
+// Utiliser les totaux passés par le contrôleur (données dynamiques de la base)
+$totalDons = $totalDons ?? 0;
+$totalBesoins = $totalBesoins ?? 0;
+$villesCount = $villesCount ?? 0;
 
 if (!empty($data)) {
     foreach ($data as $row) {
@@ -25,9 +28,6 @@ if (!empty($data)) {
             'don' => $row['quantite_don'],
             'reste' => $row['reste_a_trouver']
         ];
-        
-        $totalDons += $row['quantite_don'];
-        $totalBesoins += $row['quantite_besoin'];
     }
 }
 ?>
@@ -56,7 +56,7 @@ if (!empty($data)) {
                             <div class="col-md-4">
                                 <div class="stat-card argent">
                                     <i class="bi bi-building text-warning" style="font-size: 2.5rem;"></i>
-                                    <h3 class="text-warning"><?= count($villesData) ?></h3>
+                                    <h3 class="text-warning"><?= number_format($villesCount) ?></h3>
                                     <p>Villes Concernées</p>
                                 </div>
                             </div>

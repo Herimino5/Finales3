@@ -90,3 +90,8 @@ INSERT INTO s3fin_don (id_product, descriptions, quantite) VALUES
 (1, 'Sac de riz offert', 30),
 (2, 'Lot de tôles', 10),
 (3, 'Don en espèces', 200000);
+
+INSERT INTO s3fin_product (id, nom) VALUES
+(4, 'kilalao'),
+(5, 'siramamy'),
+(6, 'jiro');
