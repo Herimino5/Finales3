@@ -21,9 +21,9 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/besoinsform', [ BesoinController::class, 'saisirBesoin' ]);
 	$router->post('/besoinsInsert', [ BesoinController::class, 'insertBesoin' ]);
 	$router->post('/produitsInsert', [ BesoinController::class, 'insertProduit' ]);
-	$router->get('/donsform', function() use ($app) {
-		$app->render('dons', [ 'message' => 'niova ve You are gonna do great things!' ]);
-	});
+	// $router->get('/donsform', function() use ($app) {
+	// 	$app->render('dons', [ 'message' => 'niova ve You are gonna do great things!' ]);
+	// });
 	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
 	$router->get('/distributions', [ DistributionController::class, 'index' ]);
 	$router->post('/distribuerAutomatique', [ DistributionController::class, 'distribuerAutomatique' ]);
