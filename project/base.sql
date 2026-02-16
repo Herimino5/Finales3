@@ -16,7 +16,7 @@ CREATE TABLE s3fin_ville (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL,
     region_id INT NOT NULL,
-    FOREIGN KEY (region_id) REFERENCES region(id)
+    FOREIGN KEY (region_id) REFERENCES s3fin_region(id)
 );
 
 -- Table s3fin_des catégories (type de besoin ou de don)
@@ -29,7 +29,7 @@ CREATE TABLE s3fin_product (
     nom VARCHAR(100) NOT NULL UNIQUE,
     prix_unitaire DECIMAL(10,2),
     categorie_id  INT, 
-    FOREIGN KEY (categorie_id) REFERENCES categorie(id)
+    FOREIGN KEY (categorie_id) REFERENCES s3fin_categorie(id)
 );
 
 -- Table s3fin_des besoins
@@ -40,8 +40,8 @@ CREATE TABLE s3fin_besoin (
     id_product INT,
     descriptions VARCHAR(255),
     quantite INT NOT NULL,
-    FOREIGN KEY (ville_id) REFERENCES ville(id),
-    FOREIGN KEY (id_product) REFERENCES product(id),
+    FOREIGN KEY (ville_id) REFERENCES s3fin_ville(id),
+    FOREIGN KEY (id_product) REFERENCES s3fin_product(id)
 
 );
 
@@ -52,42 +52,41 @@ CREATE TABLE s3fin_don (
     descriptions VARCHAR(255),
     quantite INT NOT NULL,
     date_saisie TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (categorie_id) REFERENCES categorie(id)
-    FOREIGN KEY (id_product) REFERENCES product(id),
+    FOREIGN KEY (id_product) REFERENCES s3fin_product(id)
 );
 
 
 --donnees de test
 -- Régions
-INSERT INTO region (nom) VALUES
+INSERT INTO s3fin_region (nom) VALUES
 ('Analamanga'),
 ('Atsinanana');
 
 -- Villes
-INSERT INTO ville (nom, region_id) VALUES
+INSERT INTO s3fin_ville (nom, region_id) VALUES
 ('Antananarivo', 1),
 ('Toamasina', 2);
 
 -- Catégories
-INSERT INTO categorie (nom) VALUES
+INSERT INTO s3fin_categorie (nom) VALUES
 ('Nature'),
 ('Matériaux'),
 ('Argent');
 
 -- Produits
-INSERT INTO product (nom, prix_unitaire, categorie_id) VALUES
+INSERT INTO s3fin_product (nom, prix_unitaire, categorie_id) VALUES
 ('Riz 50kg', 2000, 1),
 ('Tôle ondulée', 15000, 2),
 ('Aide financière', 1, 3);
 
 -- Besoins
-INSERT INTO besoin (ville_id, id_product, descriptions, quantite, Date_saisie) VALUES
+INSERT INTO s3fin_besoin (ville_id, id_product, descriptions, quantite, Date_saisie) VALUES
 (1, 1, 'Riz pour familles sinistrées', 50, NOW()),
 (1, 2, 'Tôles pour reconstruction', 20, NOW()),
 (2, 3, 'Aide financière urgente', 500000, NOW());
 
 -- Dons
-INSERT INTO don (id_product, descriptions, quantite) VALUES
+INSERT INTO s3fin_don (id_product, descriptions, quantite) VALUES
 (1, 'Sac de riz offert', 30),
 (2, 'Lot de tôles', 10),
 (3, 'Don en espèces', 200000);
