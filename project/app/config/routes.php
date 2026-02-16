@@ -19,10 +19,9 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/',[DashboardController::class,'index'] );
 	$router->get('/besoinsform', [ BesoinController::class, 'saisirBesoin' ]);
 	$router->post('/besoinsInsert', [ BesoinController::class, 'insertBesoin' ]);
-	$router->get('/donsform', function() use ($app) {
-		$app->render('dons', [ 'message' => 'niova ve You are gonna do great things!' ]);
-	});
+	$router->get('/donsform', [ DonsController::class, 'index' ]);
 	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
+	$router->post('/donsProductInsert', [ DonsController::class, 'insertProduct' ]);
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
 	// });
