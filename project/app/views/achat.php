@@ -64,12 +64,14 @@ $activePage = 'achats';
                                                 </label>
                                                 <select class="form-select" id="donArgent" name="don_argent_id" required>
                                                     <option value="">Sélectionner un don en argent</option>
-                                                    <?php if(isset($donsArgent) && !empty($donsArgent)): ?>
+                                                    <?php if(isset($donsArgent) && is_array($donsArgent) && !isset($donsArgent['success'])): ?>
                                                         <?php foreach($donsArgent as $don): ?>
-                                                            <option value="<?= $don['id'] ?>" data-disponible="<?= $don['montant_disponible'] ?>">
+                                                            <?php if(is_array($don) && isset($don['id'])): ?>
+                                                            <option value="<?= $don['id'] ?>" data-disponible="<?= $don['montant_disponible'] ?? 0 ?>">
                                                                 <?= htmlspecialchars($don['descriptions'] ?? 'Don #'.$don['id']) ?> 
                                                                 - Disponible: <?= number_format($don['montant_disponible'] ?? 0, 0, ',', ' ') ?> Ar
                                                             </option>
+                                                            <?php endif; ?>
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
                                                 </select>
@@ -192,13 +194,15 @@ $activePage = 'achats';
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php if(isset($donsArgent) && !empty($donsArgent)): ?>
+                                                    <?php if(isset($donsArgent) && is_array($donsArgent) && !isset($donsArgent['success'])): ?>
                                                         <?php foreach($donsArgent as $don): ?>
+                                                            <?php if(is_array($don) && isset($don['id'])): ?>
                                                             <tr>
                                                                 <td><?= htmlspecialchars($don['descriptions'] ?? 'Don #'.$don['id']) ?></td>
                                                                 <td><?= number_format($don['montant_total'] ?? 0, 0, ',', ' ') ?> Ar</td>
                                                                 <td class="text-success fw-bold"><?= number_format($don['montant_disponible'] ?? 0, 0, ',', ' ') ?> Ar</td>
                                                             </tr>
+                                                            <?php endif; ?>
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
@@ -232,16 +236,18 @@ $activePage = 'achats';
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php if(isset($achats) && !empty($achats)): ?>
+                                            <?php if(isset($achats) && is_array($achats) && !isset($achats['success'])): ?>
                                                 <?php foreach($achats as $achat): ?>
+                                                    <?php if(is_array($achat) && isset($achat['id'])): ?>
                                                     <tr>
                                                         <td><?= date('d/m/Y H:i', strtotime($achat['date_achat'])) ?></td>
-                                                        <td><?= htmlspecialchars($achat['produit_nom']) ?></td>
-                                                        <td><?= number_format($achat['quantite'], 0, ',', ' ') ?></td>
-                                                        <td><?= $achat['frais_pourcentage'] ?>%</td>
-                                                        <td class="fw-bold"><?= number_format($achat['montant_utilise'] ?? 0, 0, ',', ' ') ?> Ar</td>
+                                                        <td><?= htmlspecialchars($achat['produit_nom'] ?? '-') ?></td>
+                                                        <td><?= number_format($achat['quantite'] ?? 0, 0, ',', ' ') ?></td>
+                                                        <td><?= $achat['frais_pourcentage'] ?? 0 ?>%</td>
+                                                        <td class="fw-bold"><?= number_format($achat['montant_total'] ?? 0, 0, ',', ' ') ?> Ar</td>
                                                         <td><?= htmlspecialchars($achat['don_description'] ?? '-') ?></td>
                                                     </tr>
+                                                    <?php endif; ?>
                                                 <?php endforeach; ?>
                                             <?php else: ?>
                                                 <tr>
