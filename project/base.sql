@@ -1,30 +1,30 @@
 CREATE DATABASE bngrc;
 USE bngrc;
-CREATE TABLE user (
+CREATE TABLE s3fin_user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
     passwords VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE region (
+CREATE TABLE s3fin_region (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL UNIQUE
 );
 
--- Table des villes (chaque ville appartient à une région)
-CREATE TABLE ville (
+-- Table s3fin_des villes (chaque ville appartient à une région)
+CREATE TABLE s3fin_ville (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL,
     region_id INT NOT NULL,
     FOREIGN KEY (region_id) REFERENCES region(id)
 );
 
--- Table des catégories (type de besoin ou de don)
-CREATE TABLE categorie (
+-- Table s3fin_des catégories (type de besoin ou de don)
+CREATE TABLE s3fin_categorie (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL UNIQUE
 );
-CREATE TABLE product (
+CREATE TABLE s3fin_product (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL UNIQUE,
     prix_unitaire DECIMAL(10,2),
@@ -32,8 +32,8 @@ CREATE TABLE product (
     FOREIGN KEY (categorie_id) REFERENCES categorie(id)
 );
 
--- Table des besoins
-CREATE TABLE besoin (
+-- Table s3fin_des besoins
+CREATE TABLE s3fin_besoin (
     id INT PRIMARY KEY AUTO_INCREMENT,
     ville_id INT NOT NULL,
     Date_saisie datetime,
@@ -45,8 +45,8 @@ CREATE TABLE besoin (
 
 );
 
--- Table des dons
-CREATE TABLE don (
+-- Table s3fin_des dons
+CREATE TABLE s3fin_don (
     id INT PRIMARY KEY AUTO_INCREMENT,
     id_product INT,
     descriptions VARCHAR(255),
