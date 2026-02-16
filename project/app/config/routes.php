@@ -15,7 +15,8 @@ use flight\net\Router;
 $router->group('', function(Router $router) use ($app) {
 
 	$router->get('/',[DashboardController::class,'index'] );
-
+	$router->get('/besoinsform', [ BesoinController::class, 'saisirBesoin' ]);
+	$router->post('/besoinsInsert', [ BesoinController::class, 'insertBesoin' ]);
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
 	// });

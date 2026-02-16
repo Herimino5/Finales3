@@ -17,4 +17,21 @@ class BesoinModel {
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+    public function insertBesoin() {
+        $sql = "INSERT INTO s3fin_besoin 
+                (ville_id, Date_saisie, id_product, descriptions, quantite) 
+                VALUES 
+                (:ville_id, :Date_saisie, :id_product, :descriptions, :quantite)";
+        
+        $stmt = $this->db->prepare($sql);
+        
+        $stmt->execute([
+            ':ville_id'    => $_POST['ville_id'],
+            ':Date_saisie' => $_POST['Date_saisie'], // format: Y-m-d H:i:s
+            ':id_product'  => $_POST['id_product'],
+            ':descriptions'=> $_POST['descriptions'],
+            ':quantite'    => $_POST['quantite']
+        ]); 
+    }
+
 }
