@@ -38,7 +38,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link <?= (isset($activePage) && $activePage === 'besoins') ? 'active' : '' ?>" href="<?= BASE_URL ?>besoins">
+                                <a class="nav-link <?= (isset($activePage) && $activePage === 'besoins') ? 'active' : '' ?>" href="<?= BASE_URL ?>besoinsform">
                                     <i class="bi bi-exclamation-circle me-2"></i> Gérer les Besoins
                                 </a>
                             </li>
