@@ -53,6 +53,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link <?= (isset($activePage) && $activePage === 'recap') ? 'active' : '' ?>" href="<?= BASE_URL ?>recap">
+                                    <i class="bi bi-clipboard-data me-2"></i> Récapitulation
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link <?= (isset($activePage) && $activePage === 'achats') ? 'active' : '' ?>" href="<?= BASE_URL ?>achats">
                                     <i class="bi bi-cash-coin me-2"></i> Achats
                                 </a>

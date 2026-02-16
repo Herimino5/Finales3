@@ -7,6 +7,7 @@ use app\controllers\BesoinController;
 use app\controllers\DistributionController;
 use app\controllers\AchatController;
 use app\controllers\DispatchController;
+use app\controllers\RecapController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -32,6 +33,10 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/donsform', [ DonsController::class, 'index' ]);
 	$router->post('/donsInsert', [ DonsController::class, 'insertDon' ]);
 	$router->post('/donsProductInsert', [ DonsController::class, 'insertProduct' ]);
+
+	// Routes Récapitulation
+	$router->get('/recap', [ RecapController::class, 'index' ]);
+	$router->get('/api/recap', [ RecapController::class, 'apiGetRecap' ]);
 
 	// Routes Achats
 	$router->get('/achats', [ AchatController::class, 'index' ]);
