@@ -18,15 +18,28 @@ class BesoinController
     public function saisirBesoin() {
         $produitModel = new ProduitModel(Flight::db());
         $villeModel = new VilleModel(Flight::db());
+        $besoinModel = new BesoinModel(Flight::db());
+        
+        // Pagination
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $perPage = 10;
         
         $produits = $produitModel->getAllProduits();
         $villes = $villeModel->getAllVilles();
         $categories = $produitModel->getAllCategories();
+        $besoins = $besoinModel->getBesoinsPaginated($page, $perPage);
+        $totalBesoins = $besoinModel->countBesoins();
+        $totalPages = ceil($totalBesoins / $perPage);
         
         $this->app->render('besoins', [
             'produits' => $produits,
             'villes' => $villes,
-            'categories' => $categories
+            'categories' => $categories,
+            'besoins' => $besoins,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalBesoins' => $totalBesoins,
+            'BASE_URL' => BASE_URL
         ]);
     }
     
@@ -44,7 +57,32 @@ class BesoinController
         $besoinModel = new BesoinModel(Flight::db());
         $besoinModel->insertBesoin($data);
         
-        $this->app->redirect('besoinsform');
+        // Recharger les données et afficher la page
+        $produitModel = new ProduitModel(Flight::db());
+        $villeModel = new VilleModel(Flight::db());
+        
+        // Pagination
+        $page = 1; // Retour à la première page après insertion
+        $perPage = 10;
+        
+        $produits = $produitModel->getAllProduits();
+        $villes = $villeModel->getAllVilles();
+        $categories = $produitModel->getAllCategories();
+        $besoins = $besoinModel->getBesoinsPaginated($page, $perPage);
+        $totalBesoins = $besoinModel->countBesoins();
+        $totalPages = ceil($totalBesoins / $perPage);
+        
+        $this->app->render('besoins', [
+            'produits' => $produits,
+            'villes' => $villes,
+            'categories' => $categories,
+            'besoins' => $besoins,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalBesoins' => $totalBesoins,
+            'success' => 'Besoin enregistré avec succès!',
+           
+        ]);
     }
     
     public function insertProduit() {

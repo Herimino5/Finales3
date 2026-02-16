@@ -88,15 +88,25 @@ $activePage = 'besoins';
                         <div class="card card-custom mt-4">
                             <div class="card-header">
                                 <i class="bi bi-list-ul me-2"></i> Liste des Besoins Enregistrés
+                                <?php if(isset($totalBesoins)): ?>
+                                    <span class="badge bg-primary float-end"><?= $totalBesoins ?> besoins au total</span>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
+                                <?php if(isset($success)): ?>
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <i class="bi bi-check-circle-fill me-2"></i><?= $success ?>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                <?php endif; ?>
+                                
                                 <div class="table-responsive">
                                     <table class="table table-custom table-hover">
                                         <thead>
                                             <tr>
                                                 <th>Ville</th>
-                                                <th>Type</th>
-                                                <th>Désignation</th>
+                                                <th>Produit</th>
+                                                <th>Catégorie</th>
                                                 <th>Quantité</th>
                                                 <th>Prix Unit.</th>
                                                 <th>Total</th>
@@ -104,95 +114,74 @@ $activePage = 'besoins';
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="tableBesoins">
-                                            <tr>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antananarivo</td>
-                                                <td><span class="badge bg-success badge-custom">Nature</span></td>
-                                                <td>Riz</td>
-                                                <td>500 kg</td>
-                                                <td>3,000 Ar</td>
-                                                <td class="fw-bold">1,500,000 Ar</td>
-                                                <td>15/02/2026</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info btn-action" title="Modifier">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-action" title="Supprimer">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antsirabe</td>
-                                                <td><span class="badge bg-info badge-custom">Matériaux</span></td>
-                                                <td>Tôle</td>
-                                                <td>200 pièces</td>
-                                                <td>25,000 Ar</td>
-                                                <td class="fw-bold">5,000,000 Ar</td>
-                                                <td>15/02/2026</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info btn-action">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-action">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Fianarantsoa</td>
-                                                <td><span class="badge bg-success badge-custom">Nature</span></td>
-                                                <td>Huile</td>
-                                                <td>300 L</td>
-                                                <td>8,000 Ar</td>
-                                                <td class="fw-bold">2,400,000 Ar</td>
-                                                <td>15/02/2026</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info btn-action">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-action">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Toamasina</td>
-                                                <td><span class="badge bg-warning text-dark badge-custom">Argent</span></td>
-                                                <td>Aide financière</td>
-                                                <td>1</td>
-                                                <td>1,000,000 Ar</td>
-                                                <td class="fw-bold">1,000,000 Ar</td>
-                                                <td>15/02/2026</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info btn-action">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-action">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="bi bi-geo-alt-fill text-primary"></i> Antananarivo</td>
-                                                <td><span class="badge bg-info badge-custom">Matériaux</span></td>
-                                                <td>Clous</td>
-                                                <td>50 kg</td>
-                                                <td>12,000 Ar</td>
-                                                <td class="fw-bold">600,000 Ar</td>
-                                                <td>14/02/2026</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info btn-action">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-action">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                        <tbody>
+                                            <?php if(isset($besoins) && !empty($besoins)): ?>
+                                                <?php foreach($besoins as $besoin): ?>
+                                                    <tr>
+                                                        <td><i class="bi bi-geo-alt-fill text-primary"></i> <?= htmlspecialchars($besoin['ville_nom']) ?></td>
+                                                        <td><?= htmlspecialchars($besoin['produit_nom']) ?></td>
+                                                        <td>
+                                                            <?php 
+                                                            $badgeClass = 'bg-secondary';
+                                                            if($besoin['categorie_nom'] == 'Nature') $badgeClass = 'bg-success';
+                                                            elseif($besoin['categorie_nom'] == 'Matériaux') $badgeClass = 'bg-info';
+                                                            elseif($besoin['categorie_nom'] == 'Argent') $badgeClass = 'bg-warning text-dark';
+                                                            ?>
+                                                            <span class="badge <?= $badgeClass ?> badge-custom"><?= htmlspecialchars($besoin['categorie_nom']) ?></span>
+                                                        </td>
+                                                        <td><?= number_format($besoin['quantite'], 0, ',', ' ') ?></td>
+                                                        <td><?= number_format($besoin['prix_unitaire'], 0, ',', ' ') ?> Ar</td>
+                                                        <td class="fw-bold"><?= number_format($besoin['quantite'] * $besoin['prix_unitaire'], 0, ',', ' ') ?> Ar</td>
+                                                        <td><?= date('d/m/Y', strtotime($besoin['Date_saisie'])) ?></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-info btn-action" title="Modifier">
+                                                                <i class="bi bi-pencil-fill"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger btn-action" title="Supprimer">
+                                                                <i class="bi bi-trash-fill"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr>
+                                                    <td colspan="8" class="text-center text-muted">Aucun besoin enregistré</td>
+                                                </tr>
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
+                                
+                                <!-- Pagination -->
+                                <?php if(isset($totalPages) && $totalPages > 1): ?>
+                                    <nav aria-label="Navigation de pagination" class="mt-4">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
+                                                <a class="page-link" href="<?= BASE_URL ?>besoinsform?page=<?= $currentPage - 1 ?>" tabindex="-1">
+                                                    <i class="bi bi-chevron-left"></i> Précédent
+                                                </a>
+                                            </li>
+                                            
+                                            <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                                                <?php if($i == 1 || $i == $totalPages || ($i >= $currentPage - 2 && $i <= $currentPage + 2)): ?>
+                                                    <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                                                        <a class="page-link" href="<?= BASE_URL ?>besoinsform?page=<?= $i ?>"><?= $i ?></a>
+                                                    </li>
+                                                <?php elseif($i == $currentPage - 3 || $i == $currentPage + 3): ?>
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link">...</span>
+                                                    </li>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                            
+                                            <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
+                                                <a class="page-link" href="<?= BASE_URL ?>besoinsform?page=<?= $currentPage + 1 ?>">
+                                                    Suivant <i class="bi bi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
