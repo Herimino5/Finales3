@@ -10,7 +10,10 @@
             <div class="row text-white">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     <p class="mb-0">
-                        <i class="bi bi-c-circle"></i> <?= date('Y') ?> BNGRC - Bureau National de Gestion des Risques et Catastrophes
+                        <i class="bi bi-c-circle"></i> <?= date('Y') ?> developpé par ETU004362 ETU004359 ETU0004370
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-c-circle"></i> copyright BNGRC 
                     </p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
