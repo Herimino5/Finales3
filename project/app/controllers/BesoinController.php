@@ -97,7 +97,16 @@ class BesoinController
         $produitModel = new ProduitModel(Flight::db());
         $produitId = $produitModel->insertProduit($data);
         
-        Flight::json(['success' => true, 'id' => $produitId]);
+        if ($produitId) {
+            Flight::json([
+                'success' => true, 
+                'id' => $produitId,
+                'nom' => $data['nom'],
+                'prix_unitaire' => $data['prix_unitaire']
+            ]);
+        } else {
+            Flight::json(['success' => false, 'error' => 'Erreur lors de l\'insertion']);
+        }
     }
 
 }

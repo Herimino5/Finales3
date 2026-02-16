@@ -31,9 +31,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(form);
             const baseUrl = document.body.getAttribute('data-base-url') || '/';
             
+            // Convertir FormData en objet JSON
+            const data = {
+                nom_produit: formData.get('nom_produit'),
+                prix_unitaire: formData.get('prix_unitaire'),
+                categorie: formData.get('categorie')
+            };
+            
             fetch(baseUrl + 'produitsInsert', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
