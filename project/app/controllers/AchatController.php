@@ -26,7 +26,7 @@ class AchatController
         $produits = $produitModel->getAllProduits();
         $villes = $villeModel->getAllVilles();
 
-        $this->app->render('achats', [
+        $this->app->render('achat', [
             'achats' => $achats,
             'donsArgent' => $donsArgent,
             'produits' => $produits,
