@@ -9,6 +9,7 @@ use app\controllers\AchatController;
 use app\controllers\DispatchController;
 use app\controllers\RecapController;
 use app\controllers\VilleController;
+use app\controllers\RegionController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -60,6 +61,13 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/villes/store', [ VilleController::class, 'store' ]);
 	$router->post('/villes/update/@id', [ VilleController::class, 'update' ]);
 	$router->post('/villes/delete/@id', [ VilleController::class, 'delete' ]);
+
+	// Routes Régions CRUD
+	$router->get('/regions', [ RegionController::class, 'index' ]);
+	$router->post('/regions/store', [ RegionController::class, 'store' ]);
+	$router->post('/api/regions/store', [ RegionController::class, 'apiStore' ]);
+	$router->post('/regions/update/@id', [ RegionController::class, 'update' ]);
+	$router->post('/regions/delete/@id', [ RegionController::class, 'delete' ]);
 
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';

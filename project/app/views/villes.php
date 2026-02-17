@@ -25,7 +25,14 @@ $activePage = 'villes';
 
                         <?php if (isset($_GET['error'])): ?>
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="bi bi-exclamation-triangle me-2"></i> Une erreur s'est produite.
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <?php 
+                                    switch($_GET['error']) {
+                                        case '1': echo 'Une erreur s\'est produite.'; break;
+                                        case '2': echo 'Impossible de supprimer: cette ville contient des besoins.'; break;
+                                        default: echo 'Une erreur s\'est produite.';
+                                    }
+                                ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         <?php endif; ?>
@@ -50,14 +57,19 @@ $activePage = 'villes';
                                             <label for="region_id" class="form-label">
                                                 <i class="bi bi-map text-success"></i> Région
                                             </label>
-                                            <select class="form-select" id="region_id" name="region_id" required>
-                                                <option value="">Sélectionner une région</option>
-                                                <?php if (!empty($regions)): ?>
-                                                    <?php foreach ($regions as $region): ?>
-                                                        <option value="<?= $region['id'] ?>"><?= htmlspecialchars($region['nom']) ?></option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
+                                            <div class="input-group">
+                                                <select class="form-select" id="region_id" name="region_id" required>
+                                                    <option value="">Sélectionner une région</option>
+                                                    <?php if (!empty($regions)): ?>
+                                                        <?php foreach ($regions as $region): ?>
+                                                            <option value="<?= $region['id'] ?>"><?= htmlspecialchars($region['nom']) ?></option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addRegionModal" title="Ajouter une région">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -179,12 +191,20 @@ $activePage = 'villes';
                                                 </div>
                                                 <div class="modal-body">
                                                     <p>Êtes-vous sûr de vouloir supprimer la ville <strong><?= htmlspecialchars($ville['nom']) ?></strong> ?</p>
-                                                    <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                                                    <?php if (($ville['stats']['besoins'] ?? 0) > 0): ?>
+                                                        <p class="text-danger">
+                                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                                            <strong>Attention:</strong> Cette ville contient <?= $ville['stats']['besoins'] ?> besoin(s). 
+                                                            Vous devez d'abord supprimer ces besoins.
+                                                        </p>
+                                                    <?php else: ?>
+                                                        <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                                                     <form action="<?= BASE_URL ?>villes/delete/<?= $ville['id'] ?>" method="POST" style="display:inline;">
-                                                        <button type="submit" class="btn btn-danger">
+                                                        <button type="submit" class="btn btn-danger" <?= (($ville['stats']['besoins'] ?? 0) > 0) ? 'disabled' : '' ?>>
                                                             <i class="bi bi-trash me-1"></i>Supprimer
                                                         </button>
                                                     </form>
@@ -195,10 +215,83 @@ $activePage = 'villes';
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
+
+                        <!-- Modal Ajouter Région -->
+                        <div class="modal fade" id="addRegionModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title">
+                                            <i class="bi bi-plus-circle me-2"></i>Ajouter une nouvelle région
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nom de la région</label>
+                                            <input type="text" class="form-control" id="newRegionName" placeholder="Ex: Analamanga" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                        <button type="button" class="btn btn-success" id="btnAddRegion">
+                                            <i class="bi bi-check me-1"></i>Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+<script>
+// Ajouter une région via AJAX
+document.getElementById('btnAddRegion').addEventListener('click', function() {
+    const nomRegion = document.getElementById('newRegionName').value.trim();
+    
+    if (!nomRegion) {
+        alert('Veuillez entrer un nom de région');
+        return;
+    }
+    
+    fetch('<?= BASE_URL ?>api/regions/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: nomRegion })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour le select
+            const select = document.getElementById('region_id');
+            select.innerHTML = '<option value="">Sélectionner une région</option>';
+            data.regions.forEach(region => {
+                const option = document.createElement('option');
+                option.value = region.id;
+                option.textContent = region.nom;
+                select.appendChild(option);
+            });
+            
+            // Sélectionner la nouvelle région
+            select.value = data.regions[data.regions.length - 1].id;
+            
+            // Fermer le modal
+            bootstrap.Modal.getInstance(document.getElementById('addRegionModal')).hide();
+            document.getElementById('newRegionName').value = '';
+            
+            alert('Région ajoutée avec succès!');
+        } else {
+            alert('Erreur: ' + (data.message || 'Impossible d\'ajouter la région'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur de connexion');
+    });
+});
+</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

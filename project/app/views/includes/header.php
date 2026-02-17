@@ -67,6 +67,11 @@
                                     <i class="bi bi-geo-alt me-2"></i> Villes
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?= (isset($activePage) && $activePage === 'regions') ? 'active' : '' ?>" href="<?= BASE_URL ?>regions">
+                                    <i class="bi bi-map me-2"></i> Régions
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

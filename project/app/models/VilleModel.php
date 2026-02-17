@@ -53,9 +53,20 @@ class VilleModel {
 
     // Supprime une ville
     public function deleteVille($id) {
-        $sql = "DELETE FROM s3fin_ville WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':id' => $id]);
+        try {
+            $sql = "DELETE FROM s3fin_ville WHERE id = :id";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([':id' => $id]);
+        } catch (\PDOException $e) {
+            // Erreur de contrainte de clé étrangère
+            return false;
+        }
+    }
+
+    // Vérifie si une ville peut être supprimée (pas de dépendances)
+    public function canDeleteVille($villeId) {
+        $stats = $this->getVilleStats($villeId);
+        return ($stats['besoins'] == 0);
     }
 
     // Compte les stats d'une ville (besoins, dons, distributions)

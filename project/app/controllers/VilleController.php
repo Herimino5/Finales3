@@ -7,7 +7,7 @@ use Flight;
 class VilleController {
     protected Engine $app;
 
-    public function __construct(Engine $app) {
+    public function __construct($app) {
         $this->app = $app;
     }
 
@@ -38,15 +38,15 @@ class VilleController {
         ];
         
         if (empty($data['nom']) || empty($data['region_id'])) {
-            Flight::redirect('/villes?error=1');
+            Flight::redirect('villes?error=1');
             return;
         }
         
         $villeModel = new \app\models\VilleModel(Flight::db());
         if ($villeModel->insertVille($data)) {
-            Flight::redirect('/villes?success=1');
+            Flight::redirect('villes?success=1');
         } else {
-            Flight::redirect('/villes?error=1');
+            Flight::redirect('villes?error=1');
         }
     }
 
@@ -58,25 +58,32 @@ class VilleController {
         ];
         
         if (empty($data['nom']) || empty($data['region_id'])) {
-            Flight::redirect('/villes?error=1');
+            Flight::redirect('villes?error=1');
             return;
         }
         
         $villeModel = new \app\models\VilleModel(Flight::db());
         if ($villeModel->updateVille($id, $data)) {
-            Flight::redirect('/villes?success=2');
+            Flight::redirect('villes?success=2');
         } else {
-            Flight::redirect('/villes?error=1');
+            Flight::redirect('villes?error=1');
         }
     }
 
     // Supprime une ville
     public function delete($id) {
         $villeModel = new \app\models\VilleModel(Flight::db());
+        
+        // Vérifier si la ville peut être supprimée
+        if (!$villeModel->canDeleteVille($id)) {
+            Flight::redirect('villes?error=2');
+            return;
+        }
+        
         if ($villeModel->deleteVille($id)) {
-            Flight::redirect('/villes?success=3');
+            Flight::redirect('villes?success=3');
         } else {
-            Flight::redirect('/villes?error=1');
+            Flight::redirect('villes?error=1');
         }
     }
 }

@@ -7,7 +7,7 @@ use Flight;
 class RegionController {
     protected Engine $app;
 
-    public function __construct(Engine $app) {
+    public function __construct($app) {
         $this->app = $app;
     }
 
@@ -29,15 +29,15 @@ class RegionController {
         $nom = trim($_POST['nom'] ?? '');
         
         if (empty($nom)) {
-            Flight::redirect('/regions?error=1');
+            Flight::redirect('regions?error=1');
             return;
         }
         
         $regionModel = new \app\models\RegionModel(Flight::db());
         if ($regionModel->insertRegion(['nom' => $nom])) {
-            Flight::redirect('/regions?success=1');
+            Flight::redirect('regions?success=1');
         } else {
-            Flight::redirect('/regions?error=1');
+            Flight::redirect('regions?error=1');
         }
     }
 
@@ -67,15 +67,15 @@ class RegionController {
         $nom = trim($_POST['nom'] ?? '');
         
         if (empty($nom)) {
-            Flight::redirect('/regions?error=1');
+            Flight::redirect('regions?error=1');
             return;
         }
         
         $regionModel = new \app\models\RegionModel(Flight::db());
         if ($regionModel->updateRegion($id, ['nom' => $nom])) {
-            Flight::redirect('/regions?success=2');
+            Flight::redirect('regions?success=2');
         } else {
-            Flight::redirect('/regions?error=1');
+            Flight::redirect('regions?error=1');
         }
     }
 
@@ -85,14 +85,14 @@ class RegionController {
         
         // Vérifier si la région a des villes
         if ($regionModel->countVillesByRegion($id) > 0) {
-            Flight::redirect('/regions?error=2');
+            Flight::redirect('regions?error=2');
             return;
         }
         
         if ($regionModel->deleteRegion($id)) {
-            Flight::redirect('/regions?success=3');
+            Flight::redirect('regions?success=3');
         } else {
-            Flight::redirect('/regions?error=1');
+            Flight::redirect('regions?error=1');
         }
     }
 }
