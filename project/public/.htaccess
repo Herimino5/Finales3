@@ -1,6 +1,10 @@
 RewriteEngine On
+
+# Si le fichier ou dossier existe, le servir directement
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rediriger vers index.php (pas public/index.php, on est DÉJÀ dans public/)
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # BEGIN GZIP
