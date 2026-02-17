@@ -25,7 +25,7 @@ $activePage = 'distributions';
                         <!-- Informations -->
                         <div class="alert-info-custom">
                             <h5><i class="bi bi-info-circle-fill me-2"></i> Algorithme de Distribution</h5>
-                            <p class="mb-0">Les dons sont distribués automatiquement selon l'ordre de date de saisie (FIFO). Le système attribue les dons disponibles aux besoins les plus anciens en priorité.</p>
+                            <p class="mb-0">Choisissez le mode de distribution et lancez la simulation. Le système attribuera automatiquement les dons disponibles aux besoins selon l'algorithme sélectionné.</p>
                         </div>
 
                         <!-- Bouton de simulation -->
@@ -33,12 +33,36 @@ $activePage = 'distributions';
                             <div class="card-header">
                                 <i class="bi bi-play-circle me-2"></i> Lancer la Distribution
                             </div>
-                            <div class="card-body text-center">
-                                <p class="text-muted">Cliquez sur le bouton ci-dessous pour lancer la distribution automatique des dons disponibles.</p>
+                            <div class="card-body">
                                 <form method="POST" action="<?= BASE_URL ?>distribuerAutomatique">
-                                    <button type="submit" class="btn btn-primary-custom btn-custom btn-lg">
-                                        <i class="bi bi-play-fill me-2"></i> Distribuer Automatiquement
-                                    </button>
+                                    <!-- Sélection du mode de distribution -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-8 offset-md-2">
+                                            <label for="mode" class="form-label fw-bold">
+                                                <i class="bi bi-gear-fill me-2"></i>Mode de Distribution
+                                            </label>
+                                            <select name="mode" id="mode" class="form-select form-select-lg" required>
+                                                <option value="fifo" <?= (isset($mode) && $mode == 'fifo') ? 'selected' : '' ?>>
+                                                    📅 FIFO (First In, First Out) - Par ordre de date
+                                                </option>
+                                                <option value="proportionnel" disabled>
+                                                    ⚖️ Proportionnel - Selon les besoins de chaque ville (Bientôt disponible)
+                                                </option>
+                                                <option value="quantite" disabled>
+                                                    📊 Par Quantité - Distribution équitable (Bientôt disponible)
+                                                </option>
+                                            </select>
+                                            <div class="form-text mt-2" id="modeDescription">
+                                                <strong>FIFO:</strong> Les besoins les plus anciens sont satisfaits en priorité avec les dons les plus anciens.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary-custom btn-custom btn-lg">
+                                            <i class="bi bi-play-fill me-2"></i> Distribuer Automatiquement
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -185,31 +209,21 @@ $activePage = 'distributions';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('btnSimuler').addEventListener('click', function() {
-            // Afficher un loader
-            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Simulation en cours...';
-            this.disabled = true;
-
-            // Simuler un délai de traitement
-            setTimeout(() => {
-                // Afficher les résultats
-                document.getElementById('resultatsSimulation').style.display = 'block';
-                
-                // Scroll vers les résultats
-                document.getElementById('resultatsSimulation').scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-
-                // Réinitialiser le bouton
-                this.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Simulation terminée';
-                this.classList.remove('btn-primary-custom');
-                this.classList.add('btn-success');
-                
-                // Afficher une notification
-                alert('Simulation terminée avec succès!\n\n✓ 15 distributions effectuées\n✓ 4 villes servies\n✓ 3.2M Ar distribués');
-            }, 2000);
-        });
+        // Changer la description selon le mode sélectionné
+        const modeSelect = document.getElementById('mode');
+        const modeDescription = document.getElementById('modeDescription');
+        
+        if(modeSelect) {
+            const descriptions = {
+                'fifo': '<strong>FIFO:</strong> Les besoins les plus anciens sont satisfaits en priorité avec les dons les plus anciens.',
+                'proportionnel': '<strong>Proportionnel:</strong> Les dons sont distribués proportionnellement aux besoins de chaque ville.',
+                'quantite': '<strong>Par Quantité:</strong> Distribution équitable basée sur les quantités disponibles et demandées.'
+            };
+            
+            modeSelect.addEventListener('change', function() {
+                modeDescription.innerHTML = descriptions[this.value] || '';
+            });
+        }
     </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
