@@ -51,7 +51,7 @@ CREATE OR REPLACE VIEW v_dons_argent_disponibles AS
 SELECT 
     d.id AS don_id,
     d.descriptions,
-    d.quantite AS montant_total,
+    d.quantite*p.prix_unitaire AS montant_total,
     d.date_saisie,
     COALESCE(SUM(a.montant_total), 0) AS montant_utilise,
     (d.quantite - COALESCE(SUM(a.montant_total), 0)) AS montant_disponible
