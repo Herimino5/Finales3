@@ -82,10 +82,15 @@ class Reinitialiser {
         }
 
         try {
-            $this->db->beginTransaction();
+            // Étape 0 : Créer les tables de backup si nécessaire (AVANT la transaction)
+            // CREATE TABLE fait un commit implicite en MySQL
+            $this->creerTablesBackup();
 
-            // Étape 1 : Sauvegarder les données initiales (si pas déjà fait)
+            // Étape 1 : Sauvegarder les données initiales LA PREMIÈRE FOIS SEULEMENT
             $this->sauvegarderDonneesInitiales();
+
+            // Démarrer la transaction APRÈS les CREATE TABLE
+            $this->db->beginTransaction();
 
             // Étape 2 : Supprimer toutes les distributions
             $stmtDist = $this->db->exec("DELETE FROM s3fin_distribution");
@@ -99,8 +104,9 @@ class Reinitialiser {
             // Étape 5 : Supprimer les besoins créés par l'utilisateur (initial IS NULL)
             $stmtBesoinsUser = $this->db->exec("DELETE FROM s3fin_besoin WHERE initial IS NULL");
 
-            // Étape 6 : Restaurer les copies des données initiales
-            $this->restaurerDonneesInitiales();
+            // Étape 6 : Restaurer les quantités originales des données initiales
+            // NE PAS supprimer/réinsérer pour éviter problèmes avec FK et villes
+            $this->restaurerQuantitesInitiales();
 
             $this->db->commit();
 
@@ -144,9 +150,10 @@ class Reinitialiser {
     }
 
     /**
-     * Sauvegarder les données initiales dans une table temporaire
+     * Créer les tables de backup si elles n'existent pas
+     * DOIT être appelé HORS transaction car CREATE TABLE fait un commit implicite
      */
-    private function sauvegarderDonneesInitiales() {
+    private function creerTablesBackup() {
         // Créer tables de sauvegarde si elles n'existent pas
         $this->db->exec("
             CREATE TABLE IF NOT EXISTS s3fin_besoin_backup (
@@ -168,7 +175,13 @@ class Reinitialiser {
                 date_saisie TIMESTAMP
             )
         ");
+    }
 
+    /**
+     * Sauvegarder les données initiales dans les tables de backup
+     * Ne sauvegarde qu'une seule fois (la première exécution)
+     */
+    private function sauvegarderDonneesInitiales() {
         // Sauvegarder uniquement les données initiales si pas déjà sauvegardées
         $stmt = $this->db->query("SELECT COUNT(*) as cnt FROM s3fin_besoin_backup");
         if ($stmt->fetch(\PDO::FETCH_ASSOC)['cnt'] == 0) {
@@ -192,24 +205,49 @@ class Reinitialiser {
     }
 
     /**
-     * Restaurer les données initiales depuis la sauvegarde
+     * Restaurer les quantités originales des données initiales
+     * Utilise UPDATE au lieu de DELETE/INSERT pour éviter problèmes avec FK
      */
-    private function restaurerDonneesInitiales() {
-        // Supprimer les données initiales actuelles (qui peuvent avoir été modifiées)
-        $this->db->exec("DELETE FROM s3fin_besoin WHERE initial = 'initial'");
-        $this->db->exec("DELETE FROM s3fin_don WHERE initial = 'initial'");
+    private function restaurerQuantitesInitiales() {
+        // Restaurer les quantités des besoins depuis le backup
+        $this->db->exec("
+            UPDATE s3fin_besoin b
+            INNER JOIN s3fin_besoin_backup bb ON b.id = bb.id
+            SET b.quantite = bb.quantite,
+                b.ville_id = bb.ville_id,
+                b.Date_saisie = bb.Date_saisie,
+                b.id_product = bb.id_product,
+                b.descriptions = bb.descriptions
+            WHERE b.initial = 'initial'
+        ");
 
-        // Restaurer depuis la sauvegarde
+        // Restaurer les quantités des dons depuis le backup
+        $this->db->exec("
+            UPDATE s3fin_don d
+            INNER JOIN s3fin_don_backup db ON d.id = db.id
+            SET d.quantite = db.quantite,
+                d.id_product = db.id_product,
+                d.descriptions = db.descriptions,
+                d.date_saisie = db.date_saisie
+            WHERE d.initial = 'initial'
+        ");
+
+        // Réinsérer UNIQUEMENT les données initiales qui ont été supprimées
+        // Vérifier d'abord quelles données manquent
         $this->db->exec("
             INSERT INTO s3fin_besoin (id, ville_id, Date_saisie, id_product, descriptions, quantite, initial)
-            SELECT id, ville_id, Date_saisie, id_product, descriptions, quantite, 'initial'
-            FROM s3fin_besoin_backup
+            SELECT bb.id, bb.ville_id, bb.Date_saisie, bb.id_product, bb.descriptions, bb.quantite, 'initial'
+            FROM s3fin_besoin_backup bb
+            LEFT JOIN s3fin_besoin b ON bb.id = b.id
+            WHERE b.id IS NULL
         ");
 
         $this->db->exec("
             INSERT INTO s3fin_don (id, id_product, descriptions, quantite, date_saisie, initial)
-            SELECT id, id_product, descriptions, quantite, date_saisie, 'initial'
-            FROM s3fin_don_backup
+            SELECT db.id, db.id_product, db.descriptions, db.quantite, db.date_saisie, 'initial'
+            FROM s3fin_don_backup db
+            LEFT JOIN s3fin_don d ON db.id = d.id
+            WHERE d.id IS NULL
         ");
     }
 }

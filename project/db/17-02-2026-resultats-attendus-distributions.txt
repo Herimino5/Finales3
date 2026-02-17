@@ -1,0 +1,307 @@
+================================================================================
+RÉSULTATS ATTENDUS DES DISTRIBUTIONS PAR MODE
+Données de test: 17-02-2026
+================================================================================
+
+DONNÉES DISPONIBLES:
+--------------------
+Dons:
+  - Riz: 1300 unités (500 le 10/02 + 800 le 11/02)
+  - Maïs: 300 unités (300 le 10/02)
+  - Haricots: 200 unités (200 le 12/02)
+  - Eau: 1600 unités (1000 le 09/02 + 600 le 13/02)
+  - Couvertures: 350 unités (150 le 10/02 + 200 le 14/02)
+  - Tentes: 50 unités (50 le 11/02)
+  - Vêtements: 550 unités (300 le 12/02 + 250 le 13/02)
+  - Médicaments: 100 unités (100 le 10/02)
+
+Besoins totaux par produit:
+  - Riz: 2850 unités (Dons: 1300) → Déficit: 1550
+  - Maïs: 450 unités (Dons: 300) → Déficit: 150
+  - Haricots: 330 unités (Dons: 200) → Déficit: 130
+  - Eau: 3300 unités (Dons: 1600) → Déficit: 1700
+  - Couvertures: 400 unités (Dons: 350) → Déficit: 50
+  - Tentes: 95 unités (Dons: 50) → Déficit: 45
+  - Vêtements: 550 unités (Dons: 550) → EXACT
+  - Médicaments: 140 unités (Dons: 100) → Déficit: 40
+
+================================================================================
+MODE 1: FIFO (First In, First Out)
+================================================================================
+Principe: Les besoins les plus anciens reçoivent les dons les plus anciens
+
+ANTANANARIVO (Besoins du 08-11/02):
+  ✓ Riz (600) - Besoin 08/02 08h00
+    - Reçoit 500 du don 10/02 08h00 (1er don FIFO)
+    - Reçoit 100 du don 11/02 09h30 (2ème don FIFO)
+    Total distribué: 600/600 (100%)
+  
+  ✓ Eau (800) - Besoin 09/02 10h00
+    - Reçoit 800 du don 09/02 07h00 (1er don FIFO, don le plus ancien)
+    Total distribué: 800/800 (100%)
+  
+  ✓ Couvertures (120) - Besoin 10/02 11h00
+    - Reçoit 120 du don 10/02 12h00
+    Total distribué: 120/120 (100%)
+  
+  ✓ Vêtements (200) - Besoin 11/02 14h00
+    - Reçoit 200 du don 12/02 09h00 (1er don FIFO)
+    Total distribué: 200/200 (100%)
+
+TOAMASINA (Besoins du 07-11/02):
+  ✓ Riz (700) - Besoin 07/02 09h00 (PLUS ANCIEN)
+    - Reçoit 700 du don 11/02 09h30 (reste du 2ème don après Antananarivo)
+    Total distribué: 700/700 (100%)
+  
+  ✓ Maïs (250) - Besoin 08/02 10h30
+    - Reçoit 250 du don 10/02 10h00
+    Total distribué: 250/250 (100%)
+  
+  ✓ Eau (900) - Besoin 09/02 11h00
+    - Reçoit 200 du don 09/02 07h00 (reste après Antananarivo)
+    - Reçoit 600 du don 13/02 14h00 (2ème don)
+    Total distribué: 800/900 (89%)
+  
+  ✓ Tentes (40) - Besoin 10/02 13h00
+    - Reçoit 40 du don 11/02 13h00
+    Total distribué: 40/40 (100%)
+  
+  ✓ Médicaments (80) - Besoin 11/02 15h00
+    - Reçoit 80 du don 10/02 15h00
+    Total distribué: 80/80 (100%)
+
+FIANARANTSOA (Besoins du 09-12/02):
+  ✓ Riz (400) - Besoin 09/02 08h30
+    - Plus de riz disponible (épuisé par Antananarivo et Toamasina)
+    Total distribué: 0/400 (0%)
+  
+  ✓ Haricots (150) - Besoin 10/02 09h00
+    - Reçoit 150 du don 12/02 11h00
+    Total distribué: 150/150 (100%)
+  
+  ✓ Couvertures (180) - Besoin 11/02 10h00
+    - Reçoit 30 du don 10/02 12h00 (reste après Antananarivo)
+    - Reçoit 150 du don 14/02 10h00 (2ème don)
+    Total distribué: 180/180 (100%)
+  
+  ✓ Vêtements (150) - Besoin 12/02 11h30
+    - Reçoit 100 du don 12/02 09h00 (reste après Antananarivo)
+    - Reçoit 50 du don 13/02 11h00 (2ème don)
+    Total distribué: 150/150 (100%)
+
+MAHAJANGA (Besoins du 08-11/02):
+  ✓ Riz (300) - Besoin 08/02 07h00
+    - Plus de riz disponible
+    Total distribué: 0/300 (0%)
+  
+  ✓ Maïs (200) - Besoin 09/02 08h00
+    - Reçoit 50 du don 10/02 10h00 (reste après Toamasina)
+    Total distribué: 50/200 (25%)
+  
+  ✓ Eau (500) - Besoin 10/02 12h00
+    - Plus d'eau disponible
+    Total distribué: 0/500 (0%)
+  
+  ✓ Tentes (30) - Besoin 11/02 14h00
+    - Reçoit 10 du don 11/02 13h00 (reste après Toamasina)
+    Total distribué: 10/30 (33%)
+
+TOLIARA (Besoins du 07-11/02):
+  ✓ Riz (500) - Besoin 07/02 10h00
+    - Plus de riz disponible
+    Total distribué: 0/500 (0%)
+  
+  ✓ Haricots (180) - Besoin 08/02 11h00
+    - Reçoit 50 du don 12/02 11h00 (reste après Fianarantsoa)
+    Total distribué: 50/180 (28%)
+  
+  ✓ Eau (700) - Besoin 09/02 13h00
+    - Plus d'eau disponible
+    Total distribué: 0/700 (0%)
+  
+  ✓ Vêtements (200) - Besoin 10/02 15h00
+    - Reçoit 200 du don 13/02 11h00 (reste après Fianarantsoa)
+    Total distribué: 200/200 (100%)
+  
+  ✓ Médicaments (60) - Besoin 11/02 16h00
+    - Reçoit 20 du don 10/02 15h00 (reste après Toamasina)
+    Total distribué: 20/60 (33%)
+
+ANTSIRANANA (Besoins du 08-11/02):
+  ✓ Riz (350) - Besoin 08/02 09h00
+    - Plus de riz disponible
+    Total distribué: 0/350 (0%)
+  
+  ✓ Eau (400) - Besoin 09/02 10h00
+    - Plus d'eau disponible
+    Total distribué: 0/400 (0%)
+  
+  ✓ Couvertures (100) - Besoin 10/02 11h00
+    - Reçoit 20 du don 14/02 10h00 (reste après Fianarantsoa)
+    Total distribué: 20/100 (20%)
+  
+  ✓ Tentes (25) - Besoin 11/02 13h00
+    - Plus de tentes disponibles
+    Total distribué: 0/25 (0%)
+
+RÉSUMÉ FIFO:
+  Total distribué: 4040 unités
+  Villes complètement satisfaites: 0/6
+  Produits épuisés: Riz (45% satisfait), Eau (48%), Tentes (53%)
+
+================================================================================
+MODE 2: PROPORTIONNEL
+================================================================================
+Principe: Distribution proportionnelle aux besoins de chaque ville
+
+RIZ (1300 dons pour 2850 besoins = 45.6% disponible):
+  - Antananarivo: 600 besoins → 274 distribués (45.6%)
+  - Toamasina: 700 besoins → 319 distribués (45.6%)
+  - Fianarantsoa: 400 besoins → 182 distribués (45.6%)
+  - Mahajanga: 300 besoins → 137 distribués (45.6%)
+  - Toliara: 500 besoins → 228 distribués (45.6%)
+  - Antsiranana: 350 besoins → 160 distribués (45.6%)
+  Total: 1300/1300 (100% des dons utilisés)
+
+MAÏS (300 dons pour 450 besoins = 66.7% disponible):
+  - Toamasina: 250 besoins → 167 distribués (66.7%)
+  - Mahajanga: 200 besoins → 133 distribués (66.7%)
+  Total: 300/300 (100% des dons utilisés)
+
+HARICOTS (200 dons pour 330 besoins = 60.6% disponible):
+  - Fianarantsoa: 150 besoins → 91 distribués (60.6%)
+  - Toliara: 180 besoins → 109 distribués (60.6%)
+  Total: 200/200 (100% des dons utilisés)
+
+EAU (1600 dons pour 3300 besoins = 48.5% disponible):
+  - Antananarivo: 800 besoins → 388 distribués (48.5%)
+  - Toamasina: 900 besoins → 436 distribués (48.5%)
+  - Mahajanga: 500 besoins → 242 distribués (48.5%)
+  - Toliara: 700 besoins → 339 distribués (48.5%)
+  - Antsiranana: 400 besoins → 195 distribués (48.5%)
+  Total: 1600/1600 (100% des dons utilisés)
+
+COUVERTURES (350 dons pour 400 besoins = 87.5% disponible):
+  - Antananarivo: 120 besoins → 105 distribués (87.5%)
+  - Fianarantsoa: 180 besoins → 157 distribués (87.5%)
+  - Antsiranana: 100 besoins → 88 distribués (87.5%)
+  Total: 350/350 (100% des dons utilisés)
+
+TENTES (50 dons pour 95 besoins = 52.6% disponible):
+  - Toamasina: 40 besoins → 21 distribués (52.6%)
+  - Mahajanga: 30 besoins → 16 distribués (52.6%)
+  - Antsiranana: 25 besoins → 13 distribués (52.6%)
+  Total: 50/50 (100% des dons utilisés)
+
+VÊTEMENTS (550 dons pour 550 besoins = 100% disponible):
+  - Antananarivo: 200 besoins → 200 distribués (100%)
+  - Fianarantsoa: 150 besoins → 150 distribués (100%)
+  - Toliara: 200 besoins → 200 distribués (100%)
+  Total: 550/550 (100% des dons utilisés)
+
+MÉDICAMENTS (100 dons pour 140 besoins = 71.4% disponible):
+  - Toamasina: 80 besoins → 57 distribués (71.4%)
+  - Toliara: 60 besoins → 43 distribués (71.4%)
+  Total: 100/100 (100% des dons utilisés)
+
+RÉSUMÉ PROPORTIONNEL:
+  Total distribué: 4050 unités
+  Équité: Toutes les villes reçoivent selon leurs proportions de besoins
+  Utilisation: 100% des dons utilisés efficacement
+
+================================================================================
+MODE 3: PAR QUANTITÉ (Priorité aux petits besoins)
+================================================================================
+Principe: Satisfaire d'abord les besoins les plus petits (ordre croissant)
+
+Ordre des besoins par quantité croissante:
+1. Antsiranana - Tentes: 25 unités
+2. Mahajanga - Tentes: 30 unités
+3. Toamasina - Tentes: 40 unités
+4. Toliara - Médicaments: 60 unités
+5. Toamasina - Médicaments: 80 unités
+6. Antsiranana - Couvertures: 100 unités
+7. Antananarivo - Couvertures: 120 unités
+8. Fianarantsoa - Vêtements: 150 unités
+9. Fianarantsoa - Haricots: 150 unités
+10. Fianarantsoa - Couvertures: 180 unités
+11. Toliara - Haricots: 180 unités
+12. Antananarivo - Vêtements: 200 unités
+13. Toliara - Vêtements: 200 unités
+14. Mahajanga - Maïs: 200 unités
+15. Toamasina - Maïs: 250 unités
+16. Mahajanga - Riz: 300 unités
+17. Antsiranana - Riz: 350 unités
+18. Fianarantsoa - Riz: 400 unités
+19. Antsiranana - Eau: 400 unités
+20. Mahajanga - Eau: 500 unités
+21. Toliara - Riz: 500 unités
+22. Antananarivo - Riz: 600 unités
+23. Toliara - Eau: 700 unités
+24. Toamasina - Riz: 700 unités
+25. Antananarivo - Eau: 800 unités
+26. Toamasina - Eau: 900 unités
+
+Distribution séquentielle (les plus petits d'abord):
+  ✓ Antsiranana - Tentes: 25/25 (100%) → Reste dons: 25 tentes
+  ✓ Mahajanga - Tentes: 25/30 (83%) → Reste dons: 0 tentes
+  ✗ Toamasina - Tentes: 0/40 (0%) → Plus de tentes
+  ✓ Toliara - Médicaments: 60/60 (100%) → Reste dons: 40 médicaments
+  ✗ Toamasina - Médicaments: 40/80 (50%) → Reste dons: 0 médicaments
+  ✓ Antsiranana - Couvertures: 100/100 (100%) → Reste dons: 250 couvertures
+  ✓ Antananarivo - Couvertures: 120/120 (100%) → Reste dons: 130 couvertures
+  ✓ Fianarantsoa - Vêtements: 150/150 (100%) → Reste dons: 400 vêtements
+  ✓ Fianarantsoa - Haricots: 150/150 (100%) → Reste dons: 50 haricots
+  ✗ Fianarantsoa - Couvertures: 130/180 (72%) → Reste dons: 0 couvertures
+  ✗ Toliara - Haricots: 50/180 (28%) → Reste dons: 0 haricots
+  ✓ Antananarivo - Vêtements: 200/200 (100%) → Reste dons: 200 vêtements
+  ✓ Toliara - Vêtements: 200/200 (100%) → Reste dons: 0 vêtements
+  ✓ Mahajanga - Maïs: 200/200 (100%) → Reste dons: 100 maïs
+  ✗ Toamasina - Maïs: 100/250 (40%) → Reste dons: 0 maïs
+  ✓ Mahajanga - Riz: 300/300 (100%) → Reste dons: 1000 riz
+  ✓ Antsiranana - Riz: 350/350 (100%) → Reste dons: 650 riz
+  ✓ Fianarantsoa - Riz: 400/400 (100%) → Reste dons: 250 riz
+  ✗ Antsiranana - Eau: 400/400 (100%) → Reste dons: 1200 eau
+  ✗ Mahajanga - Eau: 500/500 (100%) → Reste dons: 700 eau
+  ✗ Toliara - Riz: 250/500 (50%) → Reste dons: 0 riz
+  ✗ Antananarivo - Riz: 0/600 (0%) → Plus de riz
+  ✗ Toliara - Eau: 700/700 (100%) → Reste dons: 0 eau
+  ✗ Toamasina - Riz: 0/700 (0%) → Plus de riz
+  ✗ Antananarivo - Eau: 0/800 (0%) → Plus d'eau
+  ✗ Toamasina - Eau: 0/900 (0%) → Plus d'eau
+
+RÉSUMÉ PAR QUANTITÉ:
+  Total distribué: 4145 unités
+  Besoins 100% satisfaits: 18/29 (62%)
+  Stratégie: Maximiser le nombre de besoins complètement satisfaits
+
+================================================================================
+COMPARAISON DES 3 MODES
+================================================================================
+
+EFFICACITÉ GLOBALE:
+  - FIFO: 4040 unités distribuées (59%)
+  - Proportionnel: 4050 unités (59%)
+  - Par Quantité: 4145 unités (61%) ✓ MEILLEUR
+
+ÉQUITÉ ENTRE VILLES:
+  - FIFO: ★☆☆☆☆ (Très inéquitable - favorise les premiers)
+  - Proportionnel: ★★★★★ (Très équitable - proportionnel strict) ✓
+  - Par Quantité: ★★☆☆☆ (Inéquitable - favorise petits besoins)
+
+SATISFACTION COMPLÈTE:
+  - FIFO: 14/29 besoins (48%)
+  - Proportionnel: 2/29 besoins (7%)
+  - Par Quantité: 18/29 besoins (62%) ✓ MEILLEUR
+
+UTILISATION DES RESSOURCES:
+  - FIFO: Non optimale (restes non utilisés)
+  - Proportionnel: Optimale (100% utilisé) ✓
+  - Par Quantité: Bonne (peu de restes)
+
+RECOMMANDATION PAR SCÉNARIO:
+  - Urgence humanitaire: FIFO (premier arrivé, premier servi)
+  - Équité régionale: Proportionnel (justice distributive)
+  - Maximisation impact: Par Quantité (plus de besoins satisfaits)
+
+================================================================================
