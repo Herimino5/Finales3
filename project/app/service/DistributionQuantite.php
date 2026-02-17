@@ -40,21 +40,20 @@ class DistributionQuantite {
      * Récupérer les dons disponibles pour un produit donné
      */
     private function getDonsDisponibles($id_product) {
-        $sql = "SELECT d.id, d.id_product, d.quantite, d.date_saisie,
-                       d.descriptions,
-                       COALESCE((SELECT SUM(dist.quantite_distribuee) 
-                                 FROM s3fin_distribution dist 
-                                 WHERE dist.don_id = d.id), 0) AS deja_distribue,
-                       (d.quantite - COALESCE((SELECT SUM(dist.quantite_distribuee) 
-                                               FROM s3fin_distribution dist 
-                                               WHERE dist.don_id = d.id), 0)) AS don_disponible
-                FROM s3fin_don d
-                JOIN s3fin_product p ON d.id_product = p.id
-                JOIN s3fin_categorie c ON p.categorie_id = c.id
-                WHERE d.id_product = :id_product
-                  AND c.nom != 'Argent'
-                HAVING don_disponible > 0
-                ORDER BY d.date_saisie ASC";
+                $sql = "SELECT d.id, d.id_product, d.quantite, d.date_saisie,
+                                             d.descriptions,
+                                             COALESCE((SELECT SUM(dist.quantite_distribuee) 
+                                                                 FROM s3fin_distribution dist 
+                                                                 WHERE dist.don_id = d.id), 0) AS deja_distribue,
+                                             (d.quantite - COALESCE((SELECT SUM(dist.quantite_distribuee) 
+                                                                                             FROM s3fin_distribution dist 
+                                                                                             WHERE dist.don_id = d.id), 0)) AS don_disponible
+                                FROM s3fin_don d
+                                JOIN s3fin_product p ON d.id_product = p.id
+                                JOIN s3fin_categorie c ON p.categorie_id = c.id
+                                WHERE d.id_product = :id_product
+                                HAVING don_disponible > 0
+                                ORDER BY d.date_saisie ASC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id_product' => $id_product]);
