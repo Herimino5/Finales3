@@ -188,11 +188,11 @@
                     
                     document.getElementById('reinitDetails').innerHTML = detailsHtml;
 
-                    // Cacher le footer et recharger après 2.5s
-                    reinitFooter.innerHTML = '<button type="button" class="btn btn-primary" onclick="location.reload()">' +
-                        '<i class="bi bi-arrow-clockwise me-1"></i> Recharger la page</button>';
+                    // Rediriger vers une URL GET propre pour éviter resoumission du formulaire POST
+                    reinitFooter.innerHTML = '<button type="button" class="btn btn-primary" onclick="window.location.href = BASE_URL + \'distributions\'">' +
+                        '<i class="bi bi-arrow-clockwise me-1"></i> Retour aux distributions</button>';
                     
-                    setTimeout(() => location.reload(), 2500);
+                    setTimeout(() => { window.location.href = BASE_URL + 'distributions'; }, 2500);
                 } else {
                     document.getElementById('reinitResultat').querySelector('.alert').className = 'alert alert-danger';
                     document.getElementById('reinitMessage').textContent = data.message;
