@@ -71,19 +71,22 @@ class Reinitialiser {
         }
 
         try {
+            // Étape 1 : Supprimer les données dans une transaction
             $this->db->beginTransaction();
 
-            // 1. Supprimer les distributions (dépend des achats via achat_id)
             $stmtDist = $this->db->exec("DELETE FROM s3fin_distribution");
-
-            // 2. Supprimer les achats
             $stmtAchat = $this->db->exec("DELETE FROM s3fin_achat");
 
-            // 3. Réinitialiser les auto-increments
-            $this->db->exec("ALTER TABLE s3fin_distribution AUTO_INCREMENT = 1");
-            $this->db->exec("ALTER TABLE s3fin_achat AUTO_INCREMENT = 1");
-
             $this->db->commit();
+
+            // Étape 2 : Réinitialiser les auto-increments HORS transaction
+            // (ALTER TABLE fait un commit implicite en MySQL, incompatible avec rollBack)
+            try {
+                $this->db->exec("ALTER TABLE s3fin_distribution AUTO_INCREMENT = 1");
+                $this->db->exec("ALTER TABLE s3fin_achat AUTO_INCREMENT = 1");
+            } catch (\PDOException $e) {
+                // Non bloquant : les auto-increments ne se réinitialisent pas mais les données sont supprimées
+            }
 
             return [
                 'success' => true,
@@ -101,7 +104,9 @@ class Reinitialiser {
             ];
 
         } catch (\PDOException $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             return [
                 'success' => false,
                 'message' => 'Erreur lors de la réinitialisation : ' . $e->getMessage()
