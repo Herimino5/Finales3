@@ -193,90 +193,160 @@ $activePage = 'distributions';
                                                 <span class="badge bg-light text-dark"><?= $villeData['nb_distributions'] ?> dist.</span>
                                             </div>
                                             <div class="card-body">
-                                                <!-- Indicateurs clés -->
+                                                <!-- Explication claire des données -->
+                                                <div class="alert alert-light border mb-3">
+                                                    <small>
+                                                        <i class="bi bi-info-circle me-1"></i>
+                                                        <strong>Besoin:</strong> Quantité totale demandée | 
+                                                        <strong>Don disponible:</strong> Quantité totale reçue | 
+                                                        <strong>Distribué:</strong> Quantité effectivement allouée | 
+                                                        <strong>%:</strong> Taux de satisfaction (Distribué/Besoin)
+                                                    </small>
+                                                </div>
+
+                                                <!-- Indicateurs clés avec légendes claires -->
                                                 <div class="row mb-3">
                                                     <div class="col-4 text-center">
                                                         <div class="mb-1">
                                                             <i class="bi bi-exclamation-circle text-warning" style="font-size: 1.5rem;"></i>
                                                         </div>
-                                                        <h5 class="mb-0"><?= number_format($villeData['total_besoins'], 0, ',', ' ') ?></h5>
-                                                        <small class="text-muted">Besoins</small>
+                                                        <h5 class="mb-0 text-warning"><?= number_format($villeData['total_besoins'], 0, ',', ' ') ?></h5>
+                                                        <small class="text-muted"><strong>Besoins totaux</strong></small>
+                                                        <br><small class="text-muted" style="font-size: 0.7rem;">Quantité demandée</small>
                                                     </div>
                                                     <div class="col-4 text-center">
                                                         <div class="mb-1">
-                                                            <i class="bi bi-gift text-info" style="font-size: 1.5rem;"></i>
+                                                            <i class="bi bi-box-seam text-info" style="font-size: 1.5rem;"></i>
                                                         </div>
-                                                        <h5 class="mb-0"><?= number_format($villeData['total_dons'], 0, ',', ' ') ?></h5>
-                                                        <small class="text-muted">Dons</small>
+                                                        <h5 class="mb-0 text-info"><?= number_format($villeData['total_dons'], 0, ',', ' ') ?></h5>
+                                                        <small class="text-muted"><strong>Dons disponibles</strong></small>
+                                                        <br><small class="text-muted" style="font-size: 0.7rem;">Quantité reçue</small>
                                                     </div>
                                                     <div class="col-4 text-center">
                                                         <div class="mb-1">
                                                             <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
                                                         </div>
-                                                        <h5 class="mb-0"><?= number_format($villeData['total_distribue'], 0, ',', ' ') ?></h5>
-                                                        <small class="text-muted">Distribué</small>
+                                                        <h5 class="mb-0 text-success"><?= number_format($villeData['total_distribue'], 0, ',', ' ') ?></h5>
+                                                        <small class="text-muted"><strong>Quantité distribuée</strong></small>
+                                                        <br><small class="text-muted" style="font-size: 0.7rem;">Allouée aux besoins</small>
                                                     </div>
                                                 </div>
 
-                                                <!-- Taux de satisfaction -->
+                                                <!-- Taux de satisfaction avec explication -->
                                                 <div class="mb-3">
                                                     <div class="d-flex justify-content-between mb-1">
-                                                        <small><strong>Taux de satisfaction des besoins</strong></small>
-                                                        <small><strong><?= $tauxSatisfaction ?>%</strong></small>
+                                                        <small><strong><i class="bi bi-graph-up me-1"></i>Taux de satisfaction des besoins</strong></small>
+                                                        <small><strong class="<?= $tauxSatisfaction >= 100 ? 'text-success' : ($tauxSatisfaction >= 50 ? 'text-warning' : 'text-danger') ?>"><?= $tauxSatisfaction ?>%</strong></small>
                                                     </div>
-                                                    <div class="progress" style="height: 20px;">
-                                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?= $tauxSatisfaction ?>%">
-                                                            <?= $tauxSatisfaction ?>%
+                                                    <div class="progress" style="height: 25px;">
+                                                        <div class="progress-bar <?= $tauxSatisfaction >= 100 ? 'bg-success' : ($tauxSatisfaction >= 50 ? 'bg-warning' : 'bg-danger') ?>" 
+                                                             role="progressbar" 
+                                                             style="width: <?= $tauxSatisfaction ?>%"
+                                                             aria-valuenow="<?= $tauxSatisfaction ?>" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="100">
+                                                            <strong><?= $tauxSatisfaction ?>%</strong>
                                                         </div>
                                                     </div>
+                                                    <small class="text-muted"><em><?= number_format($villeData['total_distribue'], 0, ',', ' ') ?> distribués sur <?= number_format($villeData['total_besoins'], 0, ',', ' ') ?> demandés</em></small>
                                                 </div>
 
-                                                <!-- Détails par produit -->
-                                                <div class="table-responsive">
-                                                    <table class="table table-sm table-hover">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Produit</th>
-                                                                <th class="text-center">Besoin</th>
-                                                                <th class="text-center">Don</th>
-                                                                <th class="text-center">Distribué</th>
-                                                                <th class="text-center">%</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <?php foreach($villeData['details'] as $d): 
-                                                                $pct = $d['total_besoins'] > 0 ? round(($d['total_distribue'] / $d['total_besoins']) * 100) : 0;
-                                                            ?>
-                                                            <tr>
-                                                                <td>
-                                                                    <?php 
-                                                                    $badgeClass = 'bg-secondary';
-                                                                    $cat = $d['categorie_nom'] ?? 'Autre';
-                                                                    if($cat == 'Nature') $badgeClass = 'bg-success';
-                                                                    elseif($cat == 'Matériaux') $badgeClass = 'bg-info';
-                                                                    elseif($cat == 'Argent') $badgeClass = 'bg-warning text-dark';
-                                                                    ?>
-                                                                    <span class="badge <?= $badgeClass ?> badge-sm"><?= htmlspecialchars($cat) ?></span>
-                                                                    <small><?= htmlspecialchars($d['produit_nom'] ?? 'N/A') ?></small>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <span class="badge bg-warning text-dark"><?= number_format($d['total_besoins'], 0, ',', ' ') ?></span>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <span class="badge bg-info"><?= number_format($d['total_dons'], 0, ',', ' ') ?></span>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <span class="badge bg-success"><?= number_format($d['total_distribue'], 0, ',', ' ') ?></span>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <small class="<?= $pct >= 100 ? 'text-success' : ($pct >= 50 ? 'text-warning' : 'text-danger') ?> fw-bold">
-                                                                        <?= $pct ?>%
-                                                                    </small>
-                                                                </td>
-                                                            </tr>
-                                                            <?php endforeach; ?>
-                                                        </tbody>
-                                                    </table>
+                                                <!-- Bouton détails des calculs -->
+                                                <div class="mb-3">
+                                                    <button class="btn btn-sm btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details-<?= md5($ville) ?>" aria-expanded="false">
+                                                        <i class="bi bi-calculator me-1"></i> Voir les détails de calcul par produit
+                                                    </button>
+                                                </div>
+
+                                                <!-- Détails par produit (collapsable) -->
+                                                <div class="collapse" id="details-<?= md5($ville) ?>">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm table-hover table-bordered">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th>Produit</th>
+                                                                    <th class="text-center" title="Quantité totale demandée">
+                                                                        <i class="bi bi-exclamation-circle text-warning"></i><br>
+                                                                        <small>Besoin</small>
+                                                                    </th>
+                                                                    <th class="text-center" title="Quantité totale disponible en dons">
+                                                                        <i class="bi bi-box-seam text-info"></i><br>
+                                                                        <small>Don dispo.</small>
+                                                                    </th>
+                                                                    <th class="text-center" title="Quantité effectivement distribuée">
+                                                                        <i class="bi bi-check-circle text-success"></i><br>
+                                                                        <small>Distribué</small>
+                                                                    </th>
+                                                                    <th class="text-center" title="Taux de satisfaction">
+                                                                        <i class="bi bi-percent"></i><br>
+                                                                        <small>Satisfaction</small>
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach($villeData['details'] as $d): 
+                                                                    $pct = $d['total_besoins'] > 0 ? round(($d['total_distribue'] / $d['total_besoins']) * 100) : 0;
+                                                                    $reste_besoin = $d['total_besoins'] - $d['total_distribue'];
+                                                                ?>
+                                                                <tr>
+                                                                    <td>
+                                                                        <?php 
+                                                                        $badgeClass = 'bg-secondary';
+                                                                        $cat = $d['categorie_nom'] ?? 'Autre';
+                                                                        if($cat == 'Nature') $badgeClass = 'bg-success';
+                                                                        elseif($cat == 'Matériaux') $badgeClass = 'bg-info';
+                                                                        elseif($cat == 'Argent') $badgeClass = 'bg-warning text-dark';
+                                                                        ?>
+                                                                        <span class="badge <?= $badgeClass ?> badge-sm"><?= htmlspecialchars($cat) ?></span>
+                                                                        <br><small class="fw-bold"><?= htmlspecialchars($d['produit_nom'] ?? 'N/A') ?></small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span class="badge bg-warning text-dark"><?= number_format($d['total_besoins'], 0, ',', ' ') ?></span>
+                                                                        <br><small class="text-muted">demandé</small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span class="badge bg-info"><?= number_format($d['total_dons'], 0, ',', ' ') ?></span>
+                                                                        <br><small class="text-muted">disponible</small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <span class="badge bg-success"><?= number_format($d['total_distribue'], 0, ',', ' ') ?></span>
+                                                                        <br><small class="text-muted">alloué</small>
+                                                                        <?php if($reste_besoin > 0): ?>
+                                                                            <br><small class="text-danger"><i class="bi bi-exclamation-triangle"></i> -<?= number_format($reste_besoin, 0, ',', ' ') ?></small>
+                                                                        <?php endif; ?>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <h5 class="mb-0 <?= $pct >= 100 ? 'text-success' : ($pct >= 50 ? 'text-warning' : 'text-danger') ?>">
+                                                                            <?= $pct ?>%
+                                                                        </h5>
+                                                                        <small class="text-muted">
+                                                                            <?php if($pct >= 100): ?>
+                                                                                <i class="bi bi-check-circle-fill text-success"></i> Complet
+                                                                            <?php elseif($pct >= 50): ?>
+                                                                                <i class="bi bi-dash-circle-fill text-warning"></i> Partiel
+                                                                            <?php else: ?>
+                                                                                <i class="bi bi-x-circle-fill text-danger"></i> Insuffisant
+                                                                            <?php endif; ?>
+                                                                        </small>
+                                                                    </td>
+                                                                </tr>
+                                                                <?php endforeach; ?>
+                                                            </tbody>
+                                                            <tfoot class="table-light">
+                                                                <tr class="fw-bold">
+                                                                    <td>TOTAL VILLE</td>
+                                                                    <td class="text-center"><?= number_format($villeData['total_besoins'], 0, ',', ' ') ?></td>
+                                                                    <td class="text-center"><?= number_format($villeData['total_dons'], 0, ',', ' ') ?></td>
+                                                                    <td class="text-center"><?= number_format($villeData['total_distribue'], 0, ',', ' ') ?></td>
+                                                                    <td class="text-center">
+                                                                        <span class="<?= $tauxSatisfaction >= 100 ? 'text-success' : ($tauxSatisfaction >= 50 ? 'text-warning' : 'text-danger') ?>">
+                                                                            <?= $tauxSatisfaction ?>%
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
