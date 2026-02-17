@@ -29,9 +29,8 @@ $activePage = 'recap';
                                         <?= number_format($recapGlobal['montant_total_besoins'] ?? 0, 0, ',', ' ') ?> Ar
                                     </h3>
                                     <p>Montant Total des Besoins</p>
-                                    <small class="text-muted" id="qteTotale">
-                                        <?= number_format($recapGlobal['quantite_totale_besoins'] ?? 0, 0, ',', ' ') ?> unités 
-                                        (<?= $recapGlobal['nombre_besoins'] ?? 0 ?> besoins)
+                                    <small class="text-muted" id="nbBesoins">
+                                        <?= $recapGlobal['nombre_besoins'] ?? 0 ?> besoins enregistrés
                                     </small>
                                 </div>
                             </div>
@@ -299,8 +298,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Mettre à jour les cartes globales
                     document.getElementById('montantTotal').textContent = 
                         Number(g.montant_total_besoins).toLocaleString('fr-FR') + ' Ar';
-                    document.getElementById('qteTotale').textContent = 
-                        Number(g.quantite_totale_besoins).toLocaleString('fr-FR') + ' unités (' + g.nombre_besoins + ' besoins)';
+                    document.getElementById('nbBesoins').textContent = 
+                        g.nombre_besoins + ' besoins enregistrés';
                     
                     document.getElementById('montantSatisfait').textContent = 
                         Number(g.montant_satisfait).toLocaleString('fr-FR') + ' Ar';
