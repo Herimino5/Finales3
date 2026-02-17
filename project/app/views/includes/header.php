@@ -8,14 +8,14 @@
     <!-- Bootstrap CSS (Offline) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap.min.css">
     
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons (Offline) -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap-icons.css">
+    
+    <!-- Google Fonts - Poppins (Offline) -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/poppins.css">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body data-base-url="<?= BASE_URL ?>">
     <div class="container-fluid">
