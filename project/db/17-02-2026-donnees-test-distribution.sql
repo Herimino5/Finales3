@@ -36,8 +36,29 @@ ALTER TABLE s3fin_don AUTO_INCREMENT = 1;
 ALTER TABLE s3fin_product AUTO_INCREMENT = 1;
 ALTER TABLE s3fin_categorie AUTO_INCREMENT = 1;
 
--- NE PAS SUPPRIMER: les villes et régions (données de base du système)
--- Les villes et régions sont des données permanentes
+-- ============================================
+-- RÉGIONS
+-- ============================================
+INSERT INTO s3fin_region (id, nom) VALUES
+(1, 'Analamanga'),
+(2, 'Atsinanana'),
+(3, 'Haute Matsiatra'),
+(4, 'Boeny'),
+(5, 'Atsimo-Andrefana'),
+(6, 'Diana')
+ON DUPLICATE KEY UPDATE nom = VALUES(nom);
+
+-- ============================================
+-- VILLES
+-- ============================================
+INSERT INTO s3fin_ville (id, nom, region_id) VALUES
+(1, 'Antananarivo', 1),
+(2, 'Toamasina', 2),
+(3, 'Fianarantsoa', 3),
+(4, 'Mahajanga', 4),
+(5, 'Toliara', 5),
+(6, 'Antsiranana', 6)
+ON DUPLICATE KEY UPDATE nom = VALUES(nom), region_id = VALUES(region_id);
 
 -- ============================================
 -- CATÉGORIES
