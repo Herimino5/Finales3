@@ -52,6 +52,10 @@ class DistributionModel {
 
     /**
      * Récupérer les statistiques de distribution par ville
+     * Montre pour chaque ville et produit :
+     * - total_besoins : quantité totale demandée
+     * - total_dons : quantité totale de dons reçus pour ce produit (GLOBAL, pas par ville)
+     * - total_distribue : quantité effectivement distribuée à cette ville
      */
     public function getDistributionsParVille() {
         $sql = "SELECT 
@@ -60,7 +64,11 @@ class DistributionModel {
                     p.nom as produit_nom,
                     c.nom as categorie_nom,
                     COALESCE(SUM(b.quantite), 0) as total_besoins,
-                    COALESCE(SUM(d_dons.quantite), 0) as total_dons,
+                    COALESCE((
+                        SELECT SUM(don.quantite) 
+                        FROM s3fin_don don 
+                        WHERE don.id_product = p.id
+                    ), 0) as total_dons,
                     COALESCE(SUM(dist.quantite_distribuee), 0) as total_distribue,
                     COUNT(DISTINCT b.id) as nb_besoins,
                     COUNT(DISTINCT dist.id) as nb_distributions
@@ -69,8 +77,8 @@ class DistributionModel {
                 LEFT JOIN s3fin_product p ON b.id_product = p.id
                 LEFT JOIN s3fin_categorie c ON p.categorie_id = c.id
                 LEFT JOIN s3fin_distribution dist ON b.id = dist.besoin_id
-                LEFT JOIN s3fin_don d_dons ON dist.don_id = d_dons.id
-                GROUP BY v.id, v.nom, p.nom, c.nom
+                WHERE b.id IS NOT NULL AND p.id IS NOT NULL
+                GROUP BY v.id, v.nom, p.id, p.nom, c.nom
                 HAVING total_distribue > 0
                 ORDER BY v.nom, p.nom";
         
