@@ -2,33 +2,154 @@
 namespace app\service;
 
 class DistributionProportionnel {
-    
-    // Distribue un don proportionnellement aux besoins
-    // Arrondi vers le bas pour éviter de dépasser le don disponible
-    public function distribuer(array $besoins, float $don): array {
-        $distribution = [];
-        
-        // Calcul du total des besoins
-        $totalBesoins = array_sum($besoins);
-        
-        // Si aucun besoin, rien à distribuer
-        if ($totalBesoins <= 0) {
-            return array_fill_keys(array_keys($besoins), 0);
-        }
-        
-        // Distribution proportionnelle avec arrondi inférieur
-        foreach ($besoins as $key => $besoin) {
-            $proportion = $besoin / $totalBesoins;
-            $distribution[$key] = floor($don * $proportion);
-        }
-        
-        return $distribution;
+    private $db;
+
+    public function __construct($pdo) {
+        $this->db = $pdo;
     }
-    
-    // Retourne le reste non distribué après la distribution
-    public function getReste(array $besoins, float $don): float {
-        $distribution = $this->distribuer($besoins, $don);
-        return $don - array_sum($distribution);
+
+    /**
+     * Distribuer automatiquement les dons aux besoins proportionnellement par ville
+     */
+    public function distribuer() {
+        // Récupérer tous les besoins non satisfaits groupés par ville et produit
+        $sqlBesoins = "SELECT b.id, b.ville_id, b.id_product, b.quantite, b.Date_saisie,
+                              v.nom as ville_nom, p.nom as produit_nom,
+                              COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE besoin_id = b.id), 0) as deja_distribue,
+                              (b.quantite - COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE besoin_id = b.id), 0)) as quantite_restante
+                       FROM s3fin_besoin b
+                       LEFT JOIN s3fin_product p ON b.id_product = p.id
+                       LEFT JOIN s3fin_ville v ON b.ville_id = v.id
+                       HAVING quantite_restante > 0
+                       ORDER BY b.Date_saisie ASC";
+        
+        $stmtBesoins = $this->db->prepare($sqlBesoins);
+        $stmtBesoins->execute();
+        $besoins = $stmtBesoins->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if (empty($besoins)) {
+            return [];
+        }
+        
+        // Grouper les besoins par produit
+        $besoinsParProduit = [];
+        foreach ($besoins as $besoin) {
+            $produitId = $besoin['id_product'];
+            if (!isset($besoinsParProduit[$produitId])) {
+                $besoinsParProduit[$produitId] = [
+                    'produit_nom' => $besoin['produit_nom'],
+                    'besoins' => [],
+                    'total_besoins' => 0
+                ];
+            }
+            $besoinsParProduit[$produitId]['besoins'][] = $besoin;
+            $besoinsParProduit[$produitId]['total_besoins'] += $besoin['quantite_restante'];
+        }
+        
+        $distributions = [];
+        
+        // Pour chaque produit, distribuer les dons proportionnellement
+        foreach ($besoinsParProduit as $produitId => $data) {
+            // Récupérer les dons disponibles pour ce produit
+            $sqlDons = "SELECT d.* FROM s3fin_don d
+                       WHERE d.id_product = :id_product
+                       AND d.quantite > COALESCE((SELECT SUM(quantite_distribuee) FROM s3fin_distribution WHERE don_id = d.id), 0)
+                       ORDER BY d.date_saisie ASC";
+            
+            $stmtDons = $this->db->prepare($sqlDons);
+            $stmtDons->execute([':id_product' => $produitId]);
+            $dons = $stmtDons->fetchAll(\PDO::FETCH_ASSOC);
+            
+            if (empty($dons)) {
+                continue;
+            }
+            
+            // Calculer le total des dons disponibles
+            $totalDonsDisponible = 0;
+            foreach ($dons as $don) {
+                $sqlDonDist = "SELECT COALESCE(SUM(quantite_distribuee), 0) as total_distribue
+                              FROM s3fin_distribution WHERE don_id = :don_id";
+                $stmtDonDist = $this->db->prepare($sqlDonDist);
+                $stmtDonDist->execute([':don_id' => $don['id']]);
+                $donDistribue = $stmtDonDist->fetch(\PDO::FETCH_ASSOC);
+                $totalDonsDisponible += ($don['quantite'] - $donDistribue['total_distribue']);
+            }
+            
+            if ($totalDonsDisponible <= 0) {
+                continue;
+            }
+            
+            // Calculer les proportions pour chaque besoin
+            $totalBesoins = $data['total_besoins'];
+            $proportions = [];
+            
+            foreach ($data['besoins'] as $besoin) {
+                $proportion = $besoin['quantite_restante'] / $totalBesoins;
+                $quantiteProportionnelle = floor($totalDonsDisponible * $proportion);
+                
+                if ($quantiteProportionnelle > 0) {
+                    $proportions[] = [
+                        'besoin' => $besoin,
+                        'quantite_a_distribuer' => min($quantiteProportionnelle, $besoin['quantite_restante'])
+                    ];
+                }
+            }
+            
+            // Distribuer les dons selon les proportions
+            foreach ($proportions as $prop) {
+                $besoin = $prop['besoin'];
+                $quantiteADistribuer = $prop['quantite_a_distribuer'];
+                
+                // Parcourir les dons et distribuer
+                foreach ($dons as &$don) {
+                    if ($quantiteADistribuer <= 0) break;
+                    
+                    $sqlDonDist = "SELECT COALESCE(SUM(quantite_distribuee), 0) as total_distribue
+                                  FROM s3fin_distribution WHERE don_id = :don_id";
+                    $stmtDonDist = $this->db->prepare($sqlDonDist);
+                    $stmtDonDist->execute([':don_id' => $don['id']]);
+                    $donDistribue = $stmtDonDist->fetch(\PDO::FETCH_ASSOC);
+                    
+                    $donDisponible = $don['quantite'] - $donDistribue['total_distribue'];
+                    
+                    if ($donDisponible <= 0) continue;
+                    
+                    $quantite = min($quantiteADistribuer, $donDisponible);
+                    
+                    // Créer la distribution
+                    $this->creerDistribution($besoin['id'], $don['id'], $quantite);
+                    
+                    $distributions[] = [
+                        'besoin_id' => $besoin['id'],
+                        'besoin_ville' => $besoin['ville_nom'],
+                        'produit' => $besoin['produit_nom'],
+                        'don_id' => $don['id'],
+                        'quantite' => $quantite,
+                        'date_besoin' => $besoin['Date_saisie'],
+                        'date_don' => $don['date_saisie']
+                    ];
+                    
+                    $quantiteADistribuer -= $quantite;
+                }
+                unset($don);
+            }
+        }
+        
+        return $distributions;
+    }
+
+    /**
+     * Créer une distribution
+     */
+    private function creerDistribution($besoin_id, $don_id, $quantite) {
+        $sql = "INSERT INTO s3fin_distribution (besoin_id, don_id, quantite_distribuee, date_distribution)
+                VALUES (:besoin_id, :don_id, :quantite, NOW())";
+        
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':besoin_id' => $besoin_id,
+            ':don_id' => $don_id,
+            ':quantite' => $quantite
+        ]);
     }
 }
-?>

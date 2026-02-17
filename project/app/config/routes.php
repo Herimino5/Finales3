@@ -14,6 +14,7 @@ use flight\Engine;
 use flight\net\Router;
 
 use app\controllers\DonsController;
+use app\controllers\ReinitialiserController;
 /** 
  * @var Router $router 
  * @var Engine $app
@@ -68,6 +69,9 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/api/regions/store', [ RegionController::class, 'apiStore' ]);
 	$router->post('/regions/update/@id', [ RegionController::class, 'update' ]);
 	$router->post('/regions/delete/@id', [ RegionController::class, 'delete' ]);
+	// Routes Réinitialisation
+	$router->get('/api/reinitialiser/etat', [ ReinitialiserController::class, 'etat' ]);
+	$router->post('/api/reinitialiser', [ ReinitialiserController::class, 'reinitialiser' ]);
 
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';

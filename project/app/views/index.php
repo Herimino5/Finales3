@@ -33,9 +33,14 @@ if (!empty($data)) {
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
-                        <h2 class="mb-4" style="color: #2c3e50; font-weight: 700;">
-                            <i class="bi bi-bar-chart-fill"></i> Tableau de Bord
-                        </h2>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 style="color: #2c3e50; font-weight: 700;">
+                                <i class="bi bi-bar-chart-fill"></i> Tableau de Bord
+                            </h2>
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalReinit">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Réinitialiser
+                            </button>
+                        </div>
 
                         <!-- Statistiques globales -->
                         <div class="row">
@@ -173,4 +178,5 @@ if (!empty($data)) {
         // Scripts spécifiques à cette page
     </script>
 
+<?php include __DIR__ . '/includes/modal_reinitialiser.php'; ?>
 <?php include __DIR__ . '/includes/footer.php'; ?>

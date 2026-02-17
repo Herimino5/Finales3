@@ -30,11 +30,15 @@ class DistributionController
         $totalDistributions = $distributionModel->countDistributions();
         $totalPages = ceil($totalDistributions / $perPage);
         
+        // Récupérer les détails par ville pour le résumé
+        $detailsParVille = $distributionModel->getDistributionsParVille();
+        
         $this->app->render('distributions', [
             'distributions' => $distributions,
             'currentPage' => $page,
             'totalPages' => $totalPages,
-            'totalDistributions' => $totalDistributions
+            'totalDistributions' => $totalDistributions,
+            'detailsParVille' => $detailsParVille
         ]);
     }
     
@@ -48,25 +52,34 @@ class DistributionController
         $mode = isset($_POST['mode']) ? $_POST['mode'] : 'fifo';
         
         try {
-            // Instancier le service approprié
+            $resultats = [];
+            
+            // Instancier le service approprié et exécuter la distribution
             switch($mode) {
                 case 'fifo':
                     $service = new Distributionfifo(Flight::db());
+                    $resultats = $service->distribuer();
                     break;
+                    
                 case 'proportionnel':
-                    // TODO: À implémenter
-                    throw new \Exception('Le mode proportionnel n\'est pas encore implémenté');
+                    $service = new DistributionProportionnel(Flight::db());
+                    $resultats = $service->distribuer();
                     break;
+                    
                 case 'quantite':
-                    // TODO: À implémenter
-                    throw new \Exception('Le mode par quantité n\'est pas encore implémenté');
+                    $service = new DistributionQuantite(Flight::db());
+                    // Ce service a une méthode valider() qui fait l'insertion en base
+                    $result = $service->valider();
+                    if ($result['success']) {
+                        $resultats = $result['distributions'];
+                    } else {
+                        throw new \Exception($result['message']);
+                    }
                     break;
+                    
                 default:
                     throw new \Exception('Mode de distribution invalide');
             }
-            
-            // Exécuter la distribution
-            $resultats = $service->distribuer();
             
             // Recharger les données
             $page = 1;
@@ -76,11 +89,15 @@ class DistributionController
             $totalDistributions = $distributionModel->countDistributions();
             $totalPages = ceil($totalDistributions / $perPage);
             
+            // Récupérer les détails par ville pour le résumé
+            $detailsParVille = $distributionModel->getDistributionsParVille();
+            
             $this->app->render('distributions', [
                 'distributions' => $distributions,
                 'currentPage' => $page,
                 'totalPages' => $totalPages,
                 'totalDistributions' => $totalDistributions,
+                'detailsParVille' => $detailsParVille,
                 'success' => count($resultats) . ' distribution(s) effectuée(s) avec succès en mode ' . strtoupper($mode) . '!',
                 'resultats' => $resultats,
                 'mode' => $mode
