@@ -29,7 +29,7 @@ $activePage = 'villes';
                                 <?php 
                                     switch($_GET['error']) {
                                         case '1': echo 'Une erreur s\'est produite.'; break;
-                                        case '2': echo 'Impossible de supprimer: cette ville contient des besoins.'; break;
+                                        case '2': echo 'Impossible de supprimer: cette ville est liée à des besoins (actuels ou initiaux).'; break;
                                         default: echo 'Une erreur s\'est produite.';
                                     }
                                 ?>

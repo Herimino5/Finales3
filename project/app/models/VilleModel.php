@@ -65,8 +65,26 @@ class VilleModel {
 
     // Vérifie si une ville peut être supprimée (pas de dépendances)
     public function canDeleteVille($villeId) {
+        // Vérifier les besoins actuels
         $stats = $this->getVilleStats($villeId);
-        return ($stats['besoins'] == 0);
+        if ($stats['besoins'] > 0) {
+            return false;
+        }
+
+        // Vérifier si la ville est référencée dans le backup des données initiales
+        try {
+            $sql = "SELECT COUNT(*) as count FROM s3fin_besoin_backup WHERE ville_id = :ville_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':ville_id' => $villeId]);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (($result['count'] ?? 0) > 0) {
+                return false;
+            }
+        } catch (\PDOException $e) {
+            // La table backup n'existe pas encore, pas de contrainte
+        }
+
+        return true;
     }
 
     // Compte les stats d'une ville (besoins, dons, distributions)

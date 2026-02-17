@@ -29,7 +29,7 @@ $activePage = 'regions';
                                 <?php 
                                     switch($_GET['error']) {
                                         case '1': echo 'Une erreur s\'est produite.'; break;
-                                        case '2': echo 'Impossible de supprimer: cette région contient des villes.'; break;
+                                        case '2': echo 'Impossible de supprimer: cette région contient des villes liées à des données initiales.'; break;
                                     }
                                 ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

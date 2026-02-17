@@ -83,8 +83,8 @@ class RegionController {
     public function delete($id) {
         $regionModel = new \app\models\RegionModel(Flight::db());
         
-        // Vérifier si la région a des villes
-        if ($regionModel->countVillesByRegion($id) > 0) {
+        // Vérifier si la région peut être supprimée
+        if (!$regionModel->canDeleteRegion($id)) {
             Flight::redirect('regions?error=2');
             return;
         }

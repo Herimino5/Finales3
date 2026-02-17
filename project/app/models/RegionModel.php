@@ -48,6 +48,32 @@ class RegionModel {
         return $stmt->execute([':id' => $id]);
     }
 
+    // Vérifie si une région peut être supprimée
+    public function canDeleteRegion($regionId) {
+        // Vérifier si la région a des villes
+        if ($this->countVillesByRegion($regionId) > 0) {
+            return false;
+        }
+
+        // Vérifier si des villes de cette région sont référencées dans le backup
+        try {
+            $sql = "SELECT COUNT(*) as count 
+                    FROM s3fin_besoin_backup bb 
+                    INNER JOIN s3fin_ville v ON bb.ville_id = v.id 
+                    WHERE v.region_id = :region_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':region_id' => $regionId]);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (($result['count'] ?? 0) > 0) {
+                return false;
+            }
+        } catch (\PDOException $e) {
+            // La table backup n'existe pas encore, pas de contrainte
+        }
+
+        return true;
+    }
+
     // Compte les villes dans une région
     public function countVillesByRegion($regionId) {
         $sql = "SELECT COUNT(*) as count FROM s3fin_ville WHERE region_id = :region_id";
