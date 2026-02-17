@@ -8,6 +8,7 @@ use app\controllers\DistributionController;
 use app\controllers\AchatController;
 use app\controllers\DispatchController;
 use app\controllers\RecapController;
+use app\controllers\VilleController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -53,6 +54,12 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/api/dispatch/verifier-achat', [ DispatchController::class, 'apiVerifierAchat' ]);
 	$router->post('/api/dispatch/attribuer-don', [ DispatchController::class, 'apiAttribuerDon' ]);
 	$router->get('/api/dispatch/besoin/@besoinId', [ DispatchController::class, 'apiVerifierBesoin' ]);
+
+	// Routes Villes CRUD
+	$router->get('/villes', [ VilleController::class, 'index' ]);
+	$router->post('/villes/store', [ VilleController::class, 'store' ]);
+	$router->post('/villes/update/@id', [ VilleController::class, 'update' ]);
+	$router->post('/villes/delete/@id', [ VilleController::class, 'delete' ]);
 
 	// $router->get('/hello-world/@name', function($name) {
 	// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
