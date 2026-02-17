@@ -54,9 +54,9 @@ class BesoinModel {
     
     public function insertBesoin($data) {
         $sql = "INSERT INTO s3fin_besoin 
-                (ville_id, Date_saisie, id_product, descriptions, quantite) 
+                (ville_id, Date_saisie, id_product, descriptions, quantite, initial) 
                 VALUES 
-                (:ville_id, :Date_saisie, :id_product, :descriptions, :quantite)";
+                (:ville_id, :Date_saisie, :id_product, :descriptions, :quantite, NULL)";
         
         $stmt = $this->db->prepare($sql);
         

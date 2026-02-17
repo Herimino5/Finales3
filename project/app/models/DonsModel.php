@@ -19,8 +19,8 @@ class DonsModel {
     }
 
     public function insertDon($id_product, $descriptions, $quantite) {
-        $sql = "INSERT INTO s3fin_don (id_product, descriptions, quantite, date_saisie) 
-                VALUES (:id_product, :descriptions, :quantite, NOW())";
+        $sql = "INSERT INTO s3fin_don (id_product, descriptions, quantite, date_saisie, initial) 
+                VALUES (:id_product, :descriptions, :quantite, NOW(), NULL)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id_product' => $id_product,
