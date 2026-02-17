@@ -82,18 +82,46 @@ class DistributionProportionnel {
             // Calculer les proportions pour chaque besoin
             $totalBesoins = $data['total_besoins'];
             $proportions = [];
+            $totalDistribueParFloor = 0;
             
             foreach ($data['besoins'] as $besoin) {
                 $proportion = $besoin['quantite_restante'] / $totalBesoins;
-                $quantiteProportionnelle = floor($totalDonsDisponible * $proportion);
+                $valeurExacte = $totalDonsDisponible * $proportion;
+                $quantiteProportionnelle = floor($valeurExacte);
+                $decimale = $valeurExacte - $quantiteProportionnelle;
                 
-                if ($quantiteProportionnelle > 0) {
-                    $proportions[] = [
-                        'besoin' => $besoin,
-                        'quantite_a_distribuer' => min($quantiteProportionnelle, $besoin['quantite_restante'])
-                    ];
-                }
+                $proportions[] = [
+                    'besoin' => $besoin,
+                    'quantite_a_distribuer' => min($quantiteProportionnelle, $besoin['quantite_restante']),
+                    'decimale' => $decimale
+                ];
+                $totalDistribueParFloor += min($quantiteProportionnelle, $besoin['quantite_restante']);
             }
+            
+            // Distribuer le reste aux villes avec les plus grandes décimales
+            $reste = min($totalDonsDisponible, $totalBesoins) - $totalDistribueParFloor;
+            
+            if ($reste > 0) {
+                // Trier par décimale décroissante (les plus grandes décimales en premier)
+                usort($proportions, function($a, $b) {
+                    return $b['decimale'] <=> $a['decimale'];
+                });
+                
+                foreach ($proportions as &$prop) {
+                    if ($reste <= 0) break;
+                    $besoinRestant = $prop['besoin']['quantite_restante'] - $prop['quantite_a_distribuer'];
+                    if ($besoinRestant > 0) {
+                        $prop['quantite_a_distribuer'] += 1;
+                        $reste--;
+                    }
+                }
+                unset($prop);
+            }
+            
+            // Retirer les distributions à 0
+            $proportions = array_filter($proportions, function($p) {
+                return $p['quantite_a_distribuer'] > 0;
+            });
             
             // Distribuer les dons selon les proportions
             foreach ($proportions as $prop) {
